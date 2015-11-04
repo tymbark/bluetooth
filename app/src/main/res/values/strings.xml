@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">bluetooth-test</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_hide_console">Hide Console</string>
+    <string name="action_show_console">Show Console</string>
+</resources>
