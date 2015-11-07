@@ -1,37 +1,68 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".MainActivity">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/find_devices"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="find devices"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/but2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/find_devices"
-        android:text="2"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/find_devices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="find devices"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search only for Pi"/>
+
+            <CheckBox
+                android:id="@+id/only_pi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/connect_pi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="connect to PI"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/console_scroll"
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:layout_gravity="bottom"
         android:background="@android:color/black"
-        android:layout_alignParentBottom="true"
-        android:scrollbars="vertical"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="vertical">
 
         <TextView
             android:id="@+id/console_output"
             android:layout_width="match_parent"
-            android:textColor="@android:color/white"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"/>
 
     </ScrollView>
 
-</RelativeLayout>
+</FrameLayout>

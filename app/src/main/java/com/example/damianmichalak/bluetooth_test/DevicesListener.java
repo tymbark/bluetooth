@@ -6,4 +6,6 @@ public interface DevicesListener {
 
     void newDevice(BluetoothDevice device);
 
+    void log(String message);
+
 }

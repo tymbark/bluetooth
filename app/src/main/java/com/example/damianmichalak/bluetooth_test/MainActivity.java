@@ -3,70 +3,104 @@ package com.example.damianmichalak.bluetooth_test;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
+
 @SuppressLint("SimpleDateFormat")
 public class MainActivity extends AppCompatActivity implements DevicesListener {
 
     private BluetoothAdapter bluetoothAdapter;
     private TextView console;
     private ScrollView scroll;
+    private CheckBox checkbox;
     private String output = "";
     private boolean consoleVisible = true;
-    private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver(this);
+    private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
+    private BluetoothDevice pi;
+    private View connectPI;
+    final byte delimiter = 33;
+    int readBufferPosition = 0;
+    UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+    BluetoothSocket mmSocket;
+    final Handler handler = new Handler();
+
+    AcceptThread acceptThread;
+    ConnectedThread connectedThread;
+    ConnectThread connectThread;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setupBluetooth();
+
         console = (TextView) findViewById(R.id.console_output);
         scroll = (ScrollView) findViewById(R.id.console_scroll);
+        checkbox = (CheckBox) findViewById(R.id.only_pi);
         console.setMovementMethod(new ScrollingMovementMethod());
-        final Button devices = (Button) findViewById(R.id.find_devices);
-        final Button but2 = (Button) findViewById(R.id.but2);
+        findViewById(R.id.find_devices)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getDevices();
+                    }
+                });
+        connectPI = findViewById(R.id.connect_pi);
+        connectPI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connectThread = new ConnectThread(pi, bluetoothAdapter, new SocketListener());
+                connectThread.start();
+//                tryToConnect(pi);
+            }
+        });
+
         writeLine("Hello World!");
-
-        devices.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDevices();
-            }
-        });
-
-        but2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                writeLine("dupa 2");
-            }
-        });
-
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         if (bluetoothAdapter.isEnabled()) {
-            writeLine("bluetooth is on");
+            writeLine("Bluetooth is on");
         } else {
-            writeLine("bluetooth is off");
+            writeLine("Bluetooth is off");
         }
 
     }
 
-    private void getDevices() {
-        final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+    private void setupBluetooth() {
+        bluetoothReceiver.setDevicesListener(this);
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, filter);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        acceptThread = new AcceptThread(bluetoothAdapter);
+    }
+
+    private void getDevices() {
         bluetoothAdapter.startDiscovery();
     }
 
@@ -136,11 +170,73 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(bluetoothReceiver);
+        if (bluetoothReceiver != null) {
+            unregisterReceiver(bluetoothReceiver);
+        }
     }
 
     @Override
-    public void newDevice(BluetoothDevice device) {
-        writeLine("found device: " + device.getName());
+    public void newDevice(@NonNull BluetoothDevice device) {
+        if (!checkbox.isChecked()) {
+            writeLine("found device: " + device.getName());
+        }
+
+        if (device.getName() != null && device.getName().equals("raspberrypi")) {
+            pi = device;
+            connectPI.setEnabled(true);
+        }
+    }
+
+    public void tryToConnect(BluetoothDevice device) {
+        BluetoothSocket socket = null;
+        try {
+            Class<?> clazz = device.getClass();
+            Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
+
+            Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+            Object[] params = new Object[]{Integer.valueOf(1)};
+
+            socket = (BluetoothSocket) m.invoke(device, params);
+            //socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+            writeLine("Socket created!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            writeLine("ERROR!    " + e.getMessage());
+        }
+        try {
+            socket.connect();
+            writeLine("Socket connected!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            writeLine("ERROR!    " + e.getMessage());
+        }
+
+        try {
+            OutputStream os = socket.getOutputStream();
+            String s = "Witam";
+            os.write(s.getBytes());
+            writeLine("Message sent!");
+            socket.close();
+
+            writeLine("Socket closed!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            writeLine("ERROR!    " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void log(String message) {
+        writeLine(message);
+    }
+
+    public class SocketListener {
+
+        public void socket(BluetoothSocket socket) {
+            Log.d("CHUJ", "socket");
+            connectedThread = new ConnectedThread(socket);
+            byte[] data = "chuj".getBytes();
+            connectedThread.write(data);
+        }
     }
 }

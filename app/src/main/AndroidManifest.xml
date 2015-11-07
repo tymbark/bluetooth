@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.example.damianmichalak.bluetooth_test"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="com.example.damianmichalak.bluetooth_test"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
@@ -17,8 +20,21 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+
+        <!--<receiver-->
+            <!--android:name=".BluetoothReceiver"-->
+            <!--android:label="@string/app_name">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>-->
+                <!--<action android:name="android.bluetooth.adapter.action.EXTRA_STATE"/>-->
+                <!--<action android:name="android.bluetooth.adapter.action.EXTRA_SCAN_MODE"/>-->
+                <!--<action android:name="android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED"/>-->
+                <!--<action android:name="android.bluetooth.device.action.ACL_CONNECTED"/>-->
+                <!--<action android:name="android.bluetooth.device.action.ACL_DISCONNECTED"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+<!---->
     </application>
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 </manifest>
