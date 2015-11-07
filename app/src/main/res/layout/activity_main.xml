@@ -51,7 +51,7 @@
     <ScrollView
         android:id="@+id/console_scroll"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_gravity="bottom"
         android:background="@android:color/black"
         android:fillViewport="true"

@@ -15,4 +15,9 @@
           android:visible="false"
           app:showAsAction="never"/>
 
+    <item android:id="@+id/action_clear_console"
+          android:title="@string/action_clear_logs"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+
 </menu>

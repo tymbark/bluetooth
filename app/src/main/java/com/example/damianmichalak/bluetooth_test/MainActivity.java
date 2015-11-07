@@ -20,7 +20,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -29,7 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @SuppressLint("SimpleDateFormat")
-public class MainActivity extends AppCompatActivity implements DevicesListener {
+public class MainActivity extends AppCompatActivity implements DevicesListener, Logger {
 
     private BluetoothAdapter bluetoothAdapter;
     private TextView console;
@@ -40,11 +39,6 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
     private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
     private BluetoothDevice pi;
     private View connectPI;
-    final byte delimiter = 33;
-    int readBufferPosition = 0;
-    UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
-    BluetoothSocket mmSocket;
-    final Handler handler = new Handler();
 
     AcceptThread acceptThread;
     ConnectedThread connectedThread;
@@ -73,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
         connectPI.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread = new ConnectThread(pi, bluetoothAdapter, new SocketListener());
+                connectThread = new ConnectThread(pi, bluetoothAdapter, new SocketListener(), MainActivity.this);
                 connectThread.start();
 //                tryToConnect(pi);
             }
@@ -97,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, filter);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        acceptThread = new AcceptThread(bluetoothAdapter);
+        acceptThread = new AcceptThread(bluetoothAdapter, this);
     }
 
     private void getDevices() {
@@ -125,19 +119,27 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
         return true;
     }
 
-    private void writeLine(String s) {
-        if (!output.isEmpty()) {
-            output += "\n";
+    private void writeLine(final String s) {
 
-        }
-
-        output += new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + s;
-        console.setText(output);
-        scroll.post(new Runnable() {
+        runOnUiThread(new Runnable() {
+            @Override
             public void run() {
-                scroll.smoothScrollTo(0, console.getBottom());
+                if (console == null) return;
+                if (!output.isEmpty()) {
+                    output += "\n";
+
+                }
+
+                output += new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + s;
+                console.setText(output);
+                scroll.post(new Runnable() {
+                    public void run() {
+                        scroll.smoothScrollTo(0, console.getBottom());
+                    }
+                });
             }
         });
+
     }
 
     @Override
@@ -154,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
             case R.id.action_hide_console:
                 scroll.setVisibility(View.GONE);
                 consoleVisible = !consoleVisible;
+                ActivityCompat.invalidateOptionsMenu(this);
+                return true;
+
+            case R.id.action_clear_console:
+                output = "";
+                console.setText("");
                 ActivityCompat.invalidateOptionsMenu(this);
                 return true;
 
@@ -178,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
     @Override
     public void newDevice(@NonNull BluetoothDevice device) {
         if (!checkbox.isChecked()) {
-            writeLine("found device: " + device.getName());
+            writeLine("found: " + device.getName() + " # " + device.getAddress());
         }
 
         if (device.getName() != null && device.getName().equals("raspberrypi")) {
@@ -234,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener {
 
         public void socket(BluetoothSocket socket) {
             Log.d("CHUJ", "socket");
-            connectedThread = new ConnectedThread(socket);
+            connectedThread = new ConnectedThread(socket, MainActivity.this);
             byte[] data = "chuj".getBytes();
             connectedThread.write(data);
         }

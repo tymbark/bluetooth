@@ -1,7 +1,6 @@
 package com.example.damianmichalak.bluetooth_test;
 
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +10,11 @@ class ConnectedThread extends Thread {
     private final BluetoothSocket socket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final Logger logger;
 
-    public ConnectedThread(BluetoothSocket socket) {
+    public ConnectedThread(BluetoothSocket socket, Logger logger) {
         this.socket = socket;
+        this.logger = logger;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
@@ -22,13 +23,15 @@ class ConnectedThread extends Thread {
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
 
         inputStream = tmpIn;
         outputStream = tmpOut;
     }
 
     public void run() {
+        logger.log("connected thread run");
         byte[] buffer = new byte[1024];  // buffer store for the stream
         int bytes; // bytes returned from read()
 
@@ -38,7 +41,7 @@ class ConnectedThread extends Thread {
                 // Read from the InputStream
                 bytes = inputStream.read(buffer);
                 // Send the obtained bytes to the UI activity
-                Log.d("CHUJ", "GOT MESSAGE KURWA " + bytes);
+                logger.log("something came");
             } catch (IOException e) {
                 break;
             }
@@ -48,14 +51,19 @@ class ConnectedThread extends Thread {
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
         try {
+            logger.log("trying to write...");
             outputStream.write(bytes);
-        } catch (IOException e) { }
+            logger.log("trying to write: OK");
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
     }
 
     /* Call this from the main activity to shutdown the connection */
     public void cancel() {
         try {
             socket.close();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
     }
 }

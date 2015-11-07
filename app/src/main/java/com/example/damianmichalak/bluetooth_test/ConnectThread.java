@@ -5,56 +5,74 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.UUID;
 
 class ConnectThread extends Thread {
 
-    private final BluetoothSocket socket;
+    private BluetoothSocket socket;
     private final BluetoothDevice pi;
     private final MainActivity.SocketListener listener;
+    private final Logger logger;
     private BluetoothAdapter bluetoothAdapter;
-    UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+    UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private BluetoothConnector.BluetoothSocketWrapper wrapper;
 
-    public ConnectThread(BluetoothDevice device, BluetoothAdapter bluetoothAdapter, MainActivity.SocketListener listener) {
-        // Use a temporary object that is later assigned to socket,
-        // because socket is final
+    public ConnectThread(BluetoothDevice device, BluetoothAdapter bluetoothAdapter, MainActivity.SocketListener listener, Logger logger) {
+        this.logger = logger;
         this.listener = listener;
-        BluetoothSocket tmp = null;
-        this.bluetoothAdapter = bluetoothAdapter;
         pi = device;
+        this.bluetoothAdapter = bluetoothAdapter;
+//        BluetoothSocket tmp = null;
+//        logger.log("create connect thread");
 
         // Get a BluetoothSocket to connect with the given BluetoothDevice
-        try {
-            // MY_UUID is the app's UUID string, also used by the server code
-            tmp = device.createRfcommSocketToServiceRecord(uuid);
-        } catch (IOException e) { }
-        socket = tmp;
+//        try {
+        // MY_UUID is the app's UUID string, also used by the server code
+//            tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
+//        } catch (IOException e) { }
+//        socket = tmp;
+
+
     }
 
     public void run() {
-        // Cancel discovery because it will slow down the connection
-        bluetoothAdapter.cancelDiscovery();
+        logger.log("Connect thread run");
 
+
+        BluetoothConnector bluetoothConnector = new BluetoothConnector(logger, pi, false, bluetoothAdapter, null);
         try {
-            // Connect the device through the socket. This will block
-            // until it succeeds or throws an exception
-            socket.connect();
-        } catch (IOException connectException) {
-            // Unable to connect; close the socket and get out
-            try {
-                socket.close();
-            } catch (IOException closeException) { }
-            return;
+            wrapper = bluetoothConnector.connect();
+        } catch (IOException e) {
+            logger.log("fail!");
+            logger.log(e.getMessage());
         }
 
-        // Do work to manage the connection (in a separate thread)
-        listener.socket(socket);
+        logger.log("success!");
+
+        OutputStream outputStream = null;
+        try {
+            outputStream = wrapper.getOutputStream();
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
+
+        byte[] data = "KURWA MAC TO GUWNO DZIALA".getBytes();
+        try {
+            outputStream.write(data);
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
     }
 
-    /** Will cancel an in-progress connection, and close the socket */
+    /**
+     * Will cancel an in-progress connection, and close the socket
+     */
     public void cancel() {
         try {
             socket.close();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+            logger.log(e.getMessage());
+        }
     }
 }
