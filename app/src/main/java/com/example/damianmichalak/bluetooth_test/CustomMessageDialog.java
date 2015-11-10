@@ -8,19 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-/**
- * Created by Kamil on 2015-11-08.
- */
 public class CustomMessageDialog {
 
     private final Context context;
-    private final ConnectedThread socket;
-    private Logger logger;
 
-    public CustomMessageDialog(Context context, ConnectedThread socket, Logger logger) {
+    public CustomMessageDialog(Context context) {
         this.context = context;
-        this.socket = socket;
-        this.logger = logger;
     }
 
     public void show() {
@@ -31,7 +24,8 @@ public class CustomMessageDialog {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String messageToSend = editText.getText().toString();
-                socket.write(messageToSend);
+
+                ((MainActivity) context).popupResult(messageToSend);
                 dialogInterface.dismiss();
             }
         };
@@ -44,7 +38,6 @@ public class CustomMessageDialog {
             }
         };
 
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setView(layout)
                 .setTitle("Custom MSG")

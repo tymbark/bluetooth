@@ -67,6 +67,6 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     void writeLine(String msg) {
         if (devicesListener != null)
-            devicesListener.log(msg);
+            Logger.log(msg);
     }
 }

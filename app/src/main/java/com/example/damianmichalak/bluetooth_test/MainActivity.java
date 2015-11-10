@@ -3,11 +3,8 @@ package com.example.damianmichalak.bluetooth_test;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -19,58 +16,66 @@ import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 @SuppressLint("SimpleDateFormat")
-public class MainActivity extends AppCompatActivity implements DevicesListener, Logger {
+public class MainActivity extends AppCompatActivity implements Logger.LoggerListener, ConnectionManager.ConnectionListener {
 
-    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
+    private ConnectionManager manager;
+
     private TextView console;
     private ScrollView scroll;
     private CheckBox checkbox;
-    private String output = "";
+    private Button connectPI;
+    private Button customMsgButton;
+    private Button getGPSButton;
+
     private boolean consoleVisible = true;
-    private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
-    private BluetoothDevice pi;
-    private View connectPI;
-
-    AcceptThread acceptThread;
-    ConnectedThread connectedThread;
-    ConnectThread connectThread;
-    private Button testMSGbutton;
-    private Button customMSGbuton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupBluetooth();
-
         console = (TextView) findViewById(R.id.console_output);
         scroll = (ScrollView) findViewById(R.id.console_scroll);
         checkbox = (CheckBox) findViewById(R.id.only_pi);
+        getGPSButton = (Button) findViewById(R.id.test_msg);
+        customMsgButton = (Button) findViewById(R.id.custom_msg);
+        connectPI = (Button) findViewById(R.id.connect_pi);
         console.setMovementMethod(new ScrollingMovementMethod());
+        final CustomMessageDialog dialog = new CustomMessageDialog(MainActivity.this);
+
+
+        setupLogger();
+        setupBluetooth();
+
+
         findViewById(R.id.find_devices)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        getDevices();
+                        manager.searchForPi(checkbox.isChecked());
                     }
                 });
-        connectPI = findViewById(R.id.connect_pi);
         connectPI.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread = new ConnectThread(pi, bluetoothAdapter, new SocketListener(), MainActivity.this);
-                connectThread.start();
+                manager.connectToPi();
             }
         });
-
-        testMSGbutton = (Button) findViewById(R.id.test_msg);
-        customMSGbuton = (Button) findViewById(R.id.custom_msg);
+        getGPSButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String messageToSend = "gps";
+                manager.write(messageToSend);
+            }
+        });
+        customMsgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
+            }
+        });
         findViewById(R.id.open_map).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,29 +83,25 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
             }
         });
 
-        writeLine("Hello World!");
-        if (bluetoothAdapter.isEnabled()) {
-            writeLine("Bluetooth is on");
-        } else {
-            writeLine("Bluetooth is off");
-        }
+    }
+
+    private void setupLogger() {
+        Logger.setListener(this);
+        Logger.log("Hello World!");
     }
 
     private void setupBluetooth() {
-        bluetoothReceiver.setDevicesListener(this);
         final IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, filter);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        acceptThread = new AcceptThread(bluetoothAdapter, this);
+
+        manager = new ConnectionManager(BluetoothAdapter.getDefaultAdapter(), this);
+        bluetoothReceiver.setDevicesListener(manager);
     }
 
-    private void getDevices() {
-        bluetoothAdapter.startDiscovery();
-    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -111,28 +112,6 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
         show.setVisible(!consoleVisible);
 
         return true;
-    }
-
-    private void writeLine(final String s) {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (console == null) return;
-                if (!output.isEmpty()) {
-                    output += "\n";
-
-                }
-
-                output += new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + s;
-                console.setText(output);
-                scroll.post(new Runnable() {
-                    public void run() {
-                        scroll.smoothScrollTo(0, console.getBottom());
-                    }
-                });
-            }
-        });
     }
 
     @Override
@@ -152,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
                 return true;
 
             case R.id.action_clear_console:
-                output = "";
+                Logger.clear();
                 console.setText("");
                 ActivityCompat.invalidateOptionsMenu(this);
                 return true;
@@ -170,67 +149,72 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Logger.destroy();
         if (bluetoothReceiver != null) {
             unregisterReceiver(bluetoothReceiver);
         }
     }
 
     @Override
-    public void newDevice(@NonNull BluetoothDevice device) {
-        if (!checkbox.isChecked()) {
-            writeLine("found: " + device.getName() + " # " + device.getAddress());
-        }
-
-        if (device.getName() != null && device.getName().equals("raspberrypi")) {
-            pi = device;
-            ParcelUuid[] temp = pi.getUuids();
-            if (temp != null) {
-                writeLine("Pi UUID's");
-                for (int i = 0; i < temp.length; i++) {
-                    writeLine(temp[i].getUuid().toString());
-                }
+    public void write(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (console == null) return;
+                if (scroll == null) return;
+                console.setText(message);
+                scroll.post(new Runnable() {
+                    public void run() {
+                        scroll.smoothScrollTo(0, console.getBottom());
+                    }
+                });
             }
-            connectPI.setEnabled(true);
-        }
+        });
     }
 
     @Override
-    public void log(String message) {
-        writeLine(message);
-    }
-
-    private void setupMSGbuttons() {
-        testMSGbutton.setEnabled(true);
-        customMSGbuton.setEnabled(true);
-
-        testMSGbutton.setOnClickListener(new View.OnClickListener() {
+    public void piVisible() {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View view) {
-                String messageToSend = "gps";
-                connectedThread.write(messageToSend);
-            }
-        });
-        final CustomMessageDialog dialog = new CustomMessageDialog(MainActivity.this, connectedThread, MainActivity.this);
-        customMSGbuton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.show();
+            public void run() {
+                connectPI.setEnabled(true);
             }
         });
     }
 
-    public class SocketListener {
+    @Override
+    public void piInvisible() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                connectPI.setEnabled(false);
+            }
+        });
+    }
 
-        public void socket(final BluetoothSocket socket) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setupMSGbuttons();
-                }
-            });
+    @Override
+    public void piConnected() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getGPSButton.setEnabled(true);
+                customMsgButton.setEnabled(true);
+            }
+        });
+    }
 
-            connectedThread = new ConnectedThread(socket, MainActivity.this);
-            connectedThread.run();
-        }
+    @Override
+    public void piDisconnected() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getGPSButton.setEnabled(false);
+                customMsgButton.setEnabled(false);
+            }
+        });
+    }
+
+    public void popupResult(final String messageToSend) {
+        manager.write(messageToSend);
     }
 }

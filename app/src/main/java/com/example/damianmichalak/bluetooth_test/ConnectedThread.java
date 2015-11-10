@@ -7,24 +7,30 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 class ConnectedThread extends Thread {
+
+    interface MessageReceiver {
+
+        void messageReceived(String msg);
+
+    }
+
     private final BluetoothSocket socket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
-    private final Logger logger;
     private GpsProvider.GpsPointListener gpsPointListener;
+    private MessageReceiver receiver;
 
-    public ConnectedThread(BluetoothSocket socket, Logger logger) {
+    public ConnectedThread(BluetoothSocket socket, MessageReceiver receiver) {
         this.socket = socket;
-        this.logger = logger;
+        this.receiver = receiver;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
-        // Get the input and output streams, using temp objects because
-        // member streams are final
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
         } catch (IOException e) {
+            Logger.log(e.getMessage());
         }
 
         inputStream = tmpIn;
@@ -32,13 +38,10 @@ class ConnectedThread extends Thread {
     }
 
     public void run() {
-        logger.log("connected thread run");
+        Logger.log("connected thread start reading");
 
-
-        // Keep listening to the InputStream until an exception occurs
         while (true) {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes; // bytes returned from read()
+            byte[] buffer = new byte[1024];
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -46,34 +49,31 @@ class ConnectedThread extends Thread {
                 continue;
             }
             try {
-                // Read from the InputStream
-                bytes = inputStream.read(buffer);
-                // Send the obtained bytes to the UI activity
-                //logger.log("something came");
-                String s = new String(buffer);
-                logger.log("Message recived: [" + s + "]");
-                if(gpsPointListener!=null){
-                    gpsPointListener.deliverMessage(s);
+                inputStream.read(buffer);
+
+                final String response = new String(buffer);
+
+                receiver.messageReceived(response);
+                if (gpsPointListener != null) {
+                    gpsPointListener.deliverMessage(response);
                 }
             } catch (IOException e) {
-                logger.log("Error during read message    cause->" + e.getMessage());
+                Logger.log("Error during read message    cause->" + e.getMessage());
                 break;
             }
         }
     }
 
-    /* Call this from the main activity to send data to the remote device */
     public void write(String message) {
         try {
             byte[] bytes = message.getBytes();
             outputStream.write(bytes);
-            logger.log("Message sent: [" + message + "]");
+            Logger.log("Message sent: [" + message + "]");
         } catch (IOException e) {
-            logger.log("Error during write message    cause->" + e.getMessage());
+            Logger.log("Error during write message    cause->" + e.getMessage());
         }
     }
 
-    /* Call this from the main activity to shutdown the connection */
     public void cancel() {
         try {
             socket.close();

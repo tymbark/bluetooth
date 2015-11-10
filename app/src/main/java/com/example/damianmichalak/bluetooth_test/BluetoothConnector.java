@@ -16,7 +16,6 @@ public class BluetoothConnector {
 
     private static final String SERVER_UUID = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
 
-    private final Logger logger;
     private BluetoothSocketWrapper bluetoothSocket;
     private BluetoothDevice device;
     private boolean secure;
@@ -26,15 +25,13 @@ public class BluetoothConnector {
 
 
     /**
-     * @param logger
      * @param device         the device
      * @param secure         if connection should be done via a secure socket
      * @param adapter        the Android BT adapter
      * @param uuidCandidates a list of UUIDs. if null or empty, the Serial PP id is used
      */
-    public BluetoothConnector(Logger logger, BluetoothDevice device, boolean secure, BluetoothAdapter adapter,
+    public BluetoothConnector(BluetoothDevice device, boolean secure, BluetoothAdapter adapter,
                               List<UUID> uuidCandidates) {
-        this.logger = logger;
         this.device = device;
         this.secure = secure;
         this.adapter = adapter;
@@ -64,11 +61,11 @@ public class BluetoothConnector {
                     success = true;
                     break;
                 } catch (FallbackException e1) {
-                    logger.log("Could not initialize FallbackBluetoothSocket classes." + e.getMessage());
+                    Logger.log("Could not initialize FallbackBluetoothSocket classes." + e.getMessage());
                 } catch (InterruptedException e1) {
-                    logger.log(e1.getMessage());
+                    Logger.log(e1.getMessage());
                 } catch (IOException e1) {
-                    logger.log("Fallback failed. Cancelling." + e1.getMessage());
+                    Logger.log("Fallback failed. Cancelling." + e1.getMessage());
                 }
             }
         }
@@ -88,7 +85,7 @@ public class BluetoothConnector {
         BluetoothSocket tmp;
         UUID uuid = uuidCandidates.get(candidate++);
 
-        logger.log("Attempting to connect to Protocol: " + uuid);
+        Logger.log("Attempting to connect to Protocol: " + uuid);
         if (secure) {
             tmp = device.createRfcommSocketToServiceRecord(uuid);
         } else {
