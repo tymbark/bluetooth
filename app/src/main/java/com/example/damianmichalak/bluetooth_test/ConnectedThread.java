@@ -11,6 +11,7 @@ class ConnectedThread extends Thread {
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private final Logger logger;
+    private GpsProvider.GpsPointListener gpsPointListener;
 
     public ConnectedThread(BluetoothSocket socket, Logger logger) {
         this.socket = socket;
@@ -51,6 +52,9 @@ class ConnectedThread extends Thread {
                 //logger.log("something came");
                 String s = new String(buffer);
                 logger.log("Message recived: [" + s + "]");
+                if(gpsPointListener!=null){
+                    gpsPointListener.deliverMessage(s);
+                }
             } catch (IOException e) {
                 logger.log("Error during read message    cause->" + e.getMessage());
                 break;
@@ -75,5 +79,9 @@ class ConnectedThread extends Thread {
             socket.close();
         } catch (IOException e) {
         }
+    }
+
+    public void setGpsPointListener(GpsProvider.GpsPointListener listener) {
+        this.gpsPointListener = listener;
     }
 }
