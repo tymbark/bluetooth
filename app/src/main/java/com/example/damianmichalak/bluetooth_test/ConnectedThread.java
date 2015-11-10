@@ -32,30 +32,40 @@ class ConnectedThread extends Thread {
 
     public void run() {
         logger.log("connected thread run");
-        byte[] buffer = new byte[1024];  // buffer store for the stream
-        int bytes; // bytes returned from read()
+
 
         // Keep listening to the InputStream until an exception occurs
         while (true) {
+            byte[] buffer = new byte[1024];  // buffer store for the stream
+            int bytes; // bytes returned from read()
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                continue;
+            }
             try {
                 // Read from the InputStream
                 bytes = inputStream.read(buffer);
                 // Send the obtained bytes to the UI activity
-                logger.log("something came");
+                //logger.log("something came");
+                String s = new String(buffer);
+                logger.log("Message recived: [" + s + "]");
             } catch (IOException e) {
+                logger.log("Error during read message    cause->" + e.getMessage());
                 break;
             }
         }
     }
 
     /* Call this from the main activity to send data to the remote device */
-    public void write(byte[] bytes) {
+    public void write(String message) {
         try {
-            logger.log("trying to write...");
+            byte[] bytes = message.getBytes();
             outputStream.write(bytes);
-            logger.log("trying to write: OK");
+            logger.log("Message sent: [" + message + "]");
         } catch (IOException e) {
-            logger.log(e.getMessage());
+            logger.log("Error during write message    cause->" + e.getMessage());
         }
     }
 

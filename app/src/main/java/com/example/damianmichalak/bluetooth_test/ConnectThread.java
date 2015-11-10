@@ -47,7 +47,7 @@ class ConnectThread extends Thread {
             logger.log("fail!");
             logger.log(e.getMessage());
         }
-
+        listener.socket(wrapper.getUnderlyingSocket());
         logger.log("success!");
 
         OutputStream outputStream = null;

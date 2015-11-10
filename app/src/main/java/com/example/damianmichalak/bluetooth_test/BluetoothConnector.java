@@ -14,6 +14,8 @@ import java.util.UUID;
 
 public class BluetoothConnector {
 
+    private static final String SERVER_UUID = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
+
     private final Logger logger;
     private BluetoothSocketWrapper bluetoothSocket;
     private BluetoothDevice device;
@@ -40,7 +42,7 @@ public class BluetoothConnector {
 
         if (this.uuidCandidates == null || this.uuidCandidates.isEmpty()) {
             this.uuidCandidates = new ArrayList<UUID>();
-            this.uuidCandidates.add(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+            this.uuidCandidates.add(UUID.fromString(SERVER_UUID));
         }
     }
 

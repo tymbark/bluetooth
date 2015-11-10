@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
     AcceptThread acceptThread;
     ConnectedThread connectedThread;
     ConnectThread connectThread;
+    private Button testMSGbutton;
+    private Button customMSGbuton;
 
 
     @Override
@@ -73,13 +77,15 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
             }
         });
 
+        testMSGbutton = (Button) findViewById(R.id.test_msg);
+        customMSGbuton = (Button) findViewById(R.id.custom_msg);
+
         writeLine("Hello World!");
         if (bluetoothAdapter.isEnabled()) {
             writeLine("Bluetooth is on");
         } else {
             writeLine("Bluetooth is off");
         }
-
     }
 
     private void setupBluetooth() {
@@ -139,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
                 });
             }
         });
-
     }
 
     @Override
@@ -191,45 +196,14 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
 
         if (device.getName() != null && device.getName().equals("raspberrypi")) {
             pi = device;
+            ParcelUuid[] temp = pi.getUuids();
+            if (temp != null) {
+                writeLine("Pi UUID's");
+                for (int i = 0; i < temp.length; i++) {
+                    writeLine(temp[i].getUuid().toString());
+                }
+            }
             connectPI.setEnabled(true);
-        }
-    }
-
-    public void tryToConnect(BluetoothDevice device) {
-        BluetoothSocket socket = null;
-        try {
-            Class<?> clazz = device.getClass();
-            Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
-
-            Method m = clazz.getMethod("createRfcommSocket", paramTypes);
-            Object[] params = new Object[]{Integer.valueOf(1)};
-
-            socket = (BluetoothSocket) m.invoke(device, params);
-            //socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-            writeLine("Socket created!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            writeLine("ERROR!    " + e.getMessage());
-        }
-        try {
-            socket.connect();
-            writeLine("Socket connected!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            writeLine("ERROR!    " + e.getMessage());
-        }
-
-        try {
-            OutputStream os = socket.getOutputStream();
-            String s = "Witam";
-            os.write(s.getBytes());
-            writeLine("Message sent!");
-            socket.close();
-
-            writeLine("Socket closed!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            writeLine("ERROR!    " + e.getMessage());
         }
     }
 
@@ -238,13 +212,38 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
         writeLine(message);
     }
 
+    private void setupMSGbuttons(){
+        testMSGbutton.setEnabled(true);
+        customMSGbuton.setEnabled(true);
+
+        testMSGbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String messageToSend = "gps";
+                connectedThread.write(messageToSend);
+            }
+        });
+        final CustomMessageDialog dialog = new CustomMessageDialog(MainActivity.this, connectedThread, MainActivity.this);
+        customMSGbuton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
+            }
+        });
+    }
+
     public class SocketListener {
 
-        public void socket(BluetoothSocket socket) {
-            Log.d("CHUJ", "socket");
+        public void socket(final BluetoothSocket socket) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupMSGbuttons();
+                }
+            });
+
             connectedThread = new ConnectedThread(socket, MainActivity.this);
-            byte[] data = "chuj".getBytes();
-            connectedThread.write(data);
+            connectedThread.run();
         }
     }
 }
