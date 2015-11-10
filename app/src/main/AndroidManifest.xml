@@ -20,21 +20,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".GPSActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
 
 
-        <!--<receiver-->
-            <!--android:name=".BluetoothReceiver"-->
-            <!--android:label="@string/app_name">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>-->
-                <!--<action android:name="android.bluetooth.adapter.action.EXTRA_STATE"/>-->
-                <!--<action android:name="android.bluetooth.adapter.action.EXTRA_SCAN_MODE"/>-->
-                <!--<action android:name="android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED"/>-->
-                <!--<action android:name="android.bluetooth.device.action.ACL_CONNECTED"/>-->
-                <!--<action android:name="android.bluetooth.device.action.ACL_DISCONNECTED"/>-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-<!---->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA68eTdYOkA-lpevzgdu_YFCJfe38U9-O4"/>
+
     </application>
 
 </manifest>

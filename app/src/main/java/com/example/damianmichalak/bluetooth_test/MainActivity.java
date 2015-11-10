@@ -6,13 +6,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,13 +19,8 @@ import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
 
 @SuppressLint("SimpleDateFormat")
 public class MainActivity extends AppCompatActivity implements DevicesListener, Logger {
@@ -73,12 +66,17 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
             public void onClick(View v) {
                 connectThread = new ConnectThread(pi, bluetoothAdapter, new SocketListener(), MainActivity.this);
                 connectThread.start();
-//                tryToConnect(pi);
             }
         });
 
         testMSGbutton = (Button) findViewById(R.id.test_msg);
         customMSGbuton = (Button) findViewById(R.id.custom_msg);
+        findViewById(R.id.open_map).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(GPSActivity.newIntent(MainActivity.this));
+            }
+        });
 
         writeLine("Hello World!");
         if (bluetoothAdapter.isEnabled()) {
@@ -102,16 +100,6 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
 
     private void getDevices() {
         bluetoothAdapter.startDiscovery();
-    }
-
-    private void getBondedDevices() {
-        final Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-        writeLine("found " + bondedDevices.size() + " devices");
-
-        for (BluetoothDevice device : bondedDevices) {
-            writeLine(device.getName());
-        }
-
     }
 
     @Override
@@ -149,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -212,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements DevicesListener, 
         writeLine(message);
     }
 
-    private void setupMSGbuttons(){
+    private void setupMSGbuttons() {
         testMSGbutton.setEnabled(true);
         customMSGbuton.setEnabled(true);
 
