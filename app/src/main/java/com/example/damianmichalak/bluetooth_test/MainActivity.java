@@ -16,6 +16,8 @@ import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 @SuppressLint("SimpleDateFormat")
 public class MainActivity extends BaseActivityWithConnection implements Logger.LoggerListener {
 
@@ -221,6 +223,10 @@ public class MainActivity extends BaseActivityWithConnection implements Logger.L
                 customMsgButton.setEnabled(false);
             }
         });
+    }
+
+    @Override
+    public void pointRecived(LatLng point) {
     }
 
     public void popupResult(final String messageToSend) {

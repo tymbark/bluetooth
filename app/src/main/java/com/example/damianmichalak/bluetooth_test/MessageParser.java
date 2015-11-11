@@ -9,14 +9,20 @@ public class MessageParser {
 
     private final List<LatLng> route = new ArrayList<>();
 
-    public void parse(String msg) {
+    public List<LatLng> getRoute() {
+        return route;
+    }
+
+    public LatLng parse(String msg) {
         if (msg.startsWith("gps")) {
+
             final String[] strings = msg.split("\\s+");
             assert strings.length == 3;
 
             final double lat = Double.parseDouble(strings[1]);
             final double lng = Double.parseDouble(strings[2]);
-            route.add(new LatLng(lat, lng));
+            return new LatLng(lat, lng);
         }
+        return null;
     }
 }

@@ -18,7 +18,7 @@ public class GPSThread extends Thread {
     public void run() {
         started = true;
         while (true) {
-            if (!run) return;
+            if (!run) continue;
             connectionManager.write("gps");
             try {
                 Thread.sleep(3000);

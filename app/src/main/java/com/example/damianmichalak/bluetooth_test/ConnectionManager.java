@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.ParcelUuid;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
         void piDisconnected();
 
+        void pointRecived(LatLng point);
     }
 
     private final BluetoothAdapter bluetoothAdapter;
@@ -136,7 +139,14 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     @Override
     public void messageReceived(String msg) {
         Logger.log("Message recived: [" + msg + "]");
-        messageParser.parse(msg);
+        LatLng point = messageParser.parse(msg);
+        pointRecivedBroadcast(point);
+    }
+
+    private void pointRecivedBroadcast(LatLng point) {
+        for(int i=0; i<connectionListeners.size(); i++){
+            connectionListeners.get(i).pointRecived(point);
+        }
     }
 
 
