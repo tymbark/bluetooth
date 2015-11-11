@@ -20,10 +20,12 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     private final BluetoothAdapter bluetoothAdapter;
+    private final MessageParser messageParser;
     private final ConnectionListener listener;
     private BluetoothSocket socket;
     private BluetoothDevice pi;
     private ConnectedThread connectedThread;
+    private GPSThread gpsThread;
     private ConnectThread connectThread;
 
     private boolean onlyPi = false;
@@ -31,6 +33,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     public ConnectionManager(BluetoothAdapter bluetoothAdapter, ConnectionListener listener) {
         this.bluetoothAdapter = bluetoothAdapter;
         this.listener = listener;
+        messageParser = new MessageParser();
+        gpsThread = new GPSThread(this);
 
         if (bluetoothAdapter.isEnabled()) {
             Logger.log("Bluetooth is on");
@@ -47,6 +51,17 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     public void searchForPi(boolean checked) {
         onlyPi = checked;
         bluetoothAdapter.startDiscovery();
+    }
+
+    public void startGPS() {
+        gpsThread.setRun(true);
+        if (!gpsThread.started()) {
+            gpsThread.start();
+        }
+    }
+
+    public void stopGPS() {
+        gpsThread.setRun(false);
     }
 
     public void write(String messageToSend) {
@@ -88,6 +103,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     @Override
     public void messageReceived(String msg) {
         Logger.log("Message recived: [" + msg + "]");
+        messageParser.parse(msg);
     }
 
 }

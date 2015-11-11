@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
     private CheckBox checkbox;
     private Button connectPI;
     private Button customMsgButton;
-    private Button getGPSButton;
+    private Button startGPSButton;
+    private Button stopGPSButton;
 
     private boolean consoleVisible = true;
 
@@ -39,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
         console = (TextView) findViewById(R.id.console_output);
         scroll = (ScrollView) findViewById(R.id.console_scroll);
         checkbox = (CheckBox) findViewById(R.id.only_pi);
-        getGPSButton = (Button) findViewById(R.id.test_msg);
+        startGPSButton = (Button) findViewById(R.id.start_gps);
+        stopGPSButton = (Button) findViewById(R.id.stop_gps);
         customMsgButton = (Button) findViewById(R.id.custom_msg);
         connectPI = (Button) findViewById(R.id.connect_pi);
         console.setMovementMethod(new ScrollingMovementMethod());
@@ -63,11 +65,20 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
                 manager.connectToPi();
             }
         });
-        getGPSButton.setOnClickListener(new View.OnClickListener() {
+        startGPSButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String messageToSend = "gps";
-                manager.write(messageToSend);
+                manager.startGPS();
+                stopGPSButton.setEnabled(true);
+                startGPSButton.setEnabled(false);
+            }
+        });
+        stopGPSButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                manager.stopGPS();
+                stopGPSButton.setEnabled(false);
+                startGPSButton.setEnabled(true);
             }
         });
         customMsgButton.setOnClickListener(new View.OnClickListener() {
@@ -197,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getGPSButton.setEnabled(true);
+                startGPSButton.setEnabled(true);
                 customMsgButton.setEnabled(true);
             }
         });
@@ -208,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getGPSButton.setEnabled(false);
+                startGPSButton.setEnabled(false);
                 customMsgButton.setEnabled(false);
             }
         });

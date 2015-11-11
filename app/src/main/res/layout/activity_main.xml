@@ -52,18 +52,18 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/test_msg"
+                android:id="@+id/start_gps"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
-                android:text="TEST MSG"/>
+                android:text="START GPS"/>
 
             <Button
-                android:id="@+id/custom_msg"
+                android:id="@+id/stop_gps"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
-                android:text="CUSTOM MSG"/>
+                android:text="STOP GPS"/>
 
         </LinearLayout>
 
@@ -71,6 +71,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/custom_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="custom msg"/>
 
             <Button
                 android:id="@+id/open_map"
