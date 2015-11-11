@@ -5,7 +5,19 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.ParcelUuid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConnectionManager implements DevicesListener, ConnectThread.ConnectionStatus, ConnectedThread.MessageReceiver {
+
+    private static ConnectionManager connManager;
+
+    public static ConnectionManager getInstance(){
+        if(connManager==null){
+            connManager = new ConnectionManager();
+        }
+        return connManager;
+    }
 
     public interface ConnectionListener {
 
@@ -21,7 +33,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     private final BluetoothAdapter bluetoothAdapter;
     private final MessageParser messageParser;
-    private final ConnectionListener listener;
+    private List<ConnectionListener> connectionListeners;
     private BluetoothSocket socket;
     private BluetoothDevice pi;
     private ConnectedThread connectedThread;
@@ -30,7 +42,20 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     private boolean onlyPi = false;
 
-    public ConnectionManager(BluetoothAdapter bluetoothAdapter, ConnectionListener listener) {
+    public ConnectionManager(){
+        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        this.connectionListeners = new ArrayList<>();
+        messageParser = new MessageParser();
+        gpsThread = new GPSThread(this);
+
+        if (bluetoothAdapter.isEnabled()) {
+            Logger.log("Bluetooth is on");
+        } else {
+            Logger.log("Bluetooth is off");
+        }
+    }
+
+    /*public ConnectionManager(BluetoothAdapter bluetoothAdapter, ConnectionListener listener) {
         this.bluetoothAdapter = bluetoothAdapter;
         this.listener = listener;
         messageParser = new MessageParser();
@@ -41,6 +66,14 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         } else {
             Logger.log("Bluetooth is off");
         }
+    }*/
+
+    public void addConnectionListener(ConnectionListener listener){
+        connectionListeners.add(listener);
+    }
+
+    public void removeConnectionListener(ConnectionListener listener){
+        connectionListeners.remove(listener);
     }
 
     public void connectToPi() {
@@ -83,18 +116,18 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
                     Logger.log(temp[i].getUuid().toString());
                 }
             }
-            listener.piVisible();
+            piVisibleBroadcast();
         }
     }
 
     @Override
     public void connectionFail() {
-        listener.piDisconnected();
+        piDisconnectedBroadcast();
     }
 
     @Override
     public void connectionSuccess(BluetoothSocket socket) {
-        listener.piConnected();
+        piConnectedBroadcast();
         this.socket = socket;
         connectedThread = new ConnectedThread(socket, this);
         connectedThread.start();
@@ -106,4 +139,28 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         messageParser.parse(msg);
     }
 
+
+    private void piVisibleBroadcast(){
+        for(int i=0; i<connectionListeners.size(); i++){
+            connectionListeners.get(i).piVisible();
+        }
+    }
+
+    private void piInvisibleBroadcast(){
+        for(int i=0; i<connectionListeners.size(); i++){
+            connectionListeners.get(i).piInvisible();
+        }
+    }
+
+    private void piConnectedBroadcast(){
+        for(int i=0; i<connectionListeners.size(); i++){
+            connectionListeners.get(i).piConnected();
+        }
+    }
+
+    private void piDisconnectedBroadcast(){
+        for(int i=0; i<connectionListeners.size(); i++){
+            connectionListeners.get(i).piDisconnected();
+        }
+    }
 }

@@ -17,10 +17,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 @SuppressLint("SimpleDateFormat")
-public class MainActivity extends AppCompatActivity implements Logger.LoggerListener, ConnectionManager.ConnectionListener {
+public class MainActivity extends BaseActivityWithConnection implements Logger.LoggerListener {
 
     private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
-    private ConnectionManager manager;
 
     private TextView console;
     private ScrollView scroll;
@@ -109,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements Logger.LoggerList
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothReceiver, filter);
 
-        manager = new ConnectionManager(BluetoothAdapter.getDefaultAdapter(), this);
         bluetoothReceiver.setDevicesListener(manager);
     }
 
