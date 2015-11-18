@@ -18,7 +18,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GPSActivity extends FragmentActivity implements OnMapReadyCallback, ConnectionManager.ConnectionListener{
+public class GPSActivity extends FragmentActivity implements OnMapReadyCallback, ConnectionManager.ConnectionListener {
 
     private ConnectionManager manager = ConnectionManager.getInstance();
 
@@ -26,6 +26,7 @@ public class GPSActivity extends FragmentActivity implements OnMapReadyCallback,
 
     private PolylineOptions polylineOptions;
     private GoogleMap mMap;
+    private boolean zoomInited = false;
 
     public static Intent newIntent(Context context) {
         return new Intent(context, GPSActivity.class);
@@ -40,9 +41,8 @@ public class GPSActivity extends FragmentActivity implements OnMapReadyCallback,
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         route = new ArrayList<>();
-        route.add(new LatLng(52.40065, 16.951059833));
         polylineOptions = new PolylineOptions();
-        polylineOptions.addAll(route);
+        //polylineOptions.addAll(route);
 
         mapFragment.getMapAsync(this);
     }
@@ -53,7 +53,6 @@ public class GPSActivity extends FragmentActivity implements OnMapReadyCallback,
         map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         map.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
         mMap = map;
-        map.moveCamera(CameraUpdateFactory.newLatLng(route.get(route.size()-1)));
         map.addPolyline(polylineOptions);
     }
 
@@ -83,9 +82,15 @@ public class GPSActivity extends FragmentActivity implements OnMapReadyCallback,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mMap.addPolyline(polylineOptions.add(point));
+                if (mMap != null) {
+                    mMap.addPolyline(polylineOptions.add(point));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
+                    if(!zoomInited){
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+                        zoomInited = true;
+                    }
+                }
             }
         });
-//        Toast.makeText(this,"Recv",Toast.LENGTH_SHORT).show();
     }
 }
