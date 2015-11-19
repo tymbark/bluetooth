@@ -1,8 +1,10 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+
+import com.example.damianmichalak.bluetooth_test.activity.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,11 +63,11 @@ public class BluetoothConnector {
                     success = true;
                     break;
                 } catch (FallbackException e1) {
-                    Logger.log("Could not initialize FallbackBluetoothSocket classes." + e.getMessage());
+                    Logger.getInstance().log("Could not initialize FallbackBluetoothSocket classes." + e.getMessage());
                 } catch (InterruptedException e1) {
-                    Logger.log(e1.getMessage());
+                    Logger.getInstance().log(e1.getMessage());
                 } catch (IOException e1) {
-                    Logger.log("Fallback failed. Cancelling." + e1.getMessage());
+                    Logger.getInstance().log("Fallback failed. Cancelling." + e1.getMessage());
                 }
             }
         }
@@ -85,7 +87,7 @@ public class BluetoothConnector {
         BluetoothSocket tmp;
         UUID uuid = uuidCandidates.get(candidate++);
 
-        Logger.log("Attempting to connect to Protocol: " + uuid);
+        Logger.getInstance().log("Attempting to connect to Protocol: " + uuid);
         if (secure) {
             tmp = device.createRfcommSocketToServiceRecord(uuid);
         } else {

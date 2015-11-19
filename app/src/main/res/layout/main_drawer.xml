@@ -1,0 +1,47 @@
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ScrollView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/drawer_connection"
+                style="@style/TextViewStyle"
+                android:layout_width="match_parent"
+                android:background="@drawable/default_primary_selector"
+                android:text="@string/drawer_connection_status"/>
+
+            <TextView
+                android:id="@+id/drawer_console"
+                style="@style/TextViewStyle"
+                android:layout_width="match_parent"
+                android:text="@string/drawer_console_output"/>
+
+            <TextView
+                android:id="@+id/drawer_google"
+                style="@style/TextViewStyle"
+                android:layout_width="match_parent"
+                android:background="@drawable/default_primary_selector"
+                android:text="@string/drawer_google_maps"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+</android.support.v4.widget.DrawerLayout>

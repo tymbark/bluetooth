@@ -1,8 +1,10 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+
+import com.example.damianmichalak.bluetooth_test.activity.Logger;
 
 import java.io.IOException;
 
@@ -26,7 +28,7 @@ class ConnectThread extends Thread {
     }
 
     public void run() {
-        Logger.log("Connect thread run");
+        Logger.getInstance().log("Connect thread run");
 
 
         BluetoothConnector bluetoothConnector = new BluetoothConnector(pi, false, bluetoothAdapter, null);
@@ -34,21 +36,21 @@ class ConnectThread extends Thread {
             wrapper = bluetoothConnector.connect();
         } catch (IOException e) {
             statusListener.connectionFail();
-            Logger.log("fail!");
-            Logger.log(e.getMessage());
+            Logger.getInstance().log("fail!");
+            Logger.getInstance().log(e.getMessage());
         }
 
         socket = wrapper.getUnderlyingSocket();
         statusListener.connectionSuccess(socket);
 
-        Logger.log("success!");
+        Logger.getInstance().log("success!");
     }
 
     public void cancel() {
         try {
             socket.close();
         } catch (IOException e) {
-            Logger.log(e.getMessage());
+            Logger.getInstance().log(e.getMessage());
         }
     }
 }

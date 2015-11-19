@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/start"
+        style="@style/TextViewStyle"
+        android:layout_gravity="center"
+        android:text="@string/start"
+        android:textSize="24sp"/>
+
+    <LinearLayout
+        android:id="@+id/start_progress_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/start_status_text"
+            style="@style/TextViewStyle"
+            tools:text="Searching for PI"/>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+</FrameLayout>

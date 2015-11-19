@@ -1,10 +1,12 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.example.damianmichalak.bluetooth_test.activity.Logger;
 
 public class BluetoothReceiver extends BroadcastReceiver {
 
@@ -67,6 +69,6 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     void writeLine(String msg) {
         if (devicesListener != null)
-            Logger.log(msg);
+            Logger.getInstance().log(msg);
     }
 }

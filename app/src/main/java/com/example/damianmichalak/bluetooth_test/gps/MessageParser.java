@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.gps;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -17,7 +17,6 @@ public class MessageParser {
         if (msg.startsWith("gps")) {
 
             final String[] strings = msg.split("\\s+");
-            assert strings.length == 3;
 
             final double lat = Double.parseDouble(strings[1]);
             final double lng = Double.parseDouble(strings[2]);

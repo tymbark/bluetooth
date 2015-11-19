@@ -1,6 +1,8 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
+
+import com.example.damianmichalak.bluetooth_test.activity.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +19,6 @@ class ConnectedThread extends Thread {
     private final BluetoothSocket socket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
-    private GpsProvider.GpsPointListener gpsPointListener;
     private MessageReceiver receiver;
 
     public ConnectedThread(BluetoothSocket socket, MessageReceiver receiver) {
@@ -30,7 +31,7 @@ class ConnectedThread extends Thread {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
         } catch (IOException e) {
-            Logger.log(e.getMessage());
+            Logger.getInstance().log(e.getMessage());
         }
 
         inputStream = tmpIn;
@@ -38,10 +39,10 @@ class ConnectedThread extends Thread {
     }
 
     public void run() {
-        Logger.log("connected thread start reading");
+        Logger.getInstance().log("connected thread start reading");
 
         while (true) {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[256];
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -54,11 +55,8 @@ class ConnectedThread extends Thread {
                 final String response = new String(buffer);
 
                 receiver.messageReceived(response);
-                if (gpsPointListener != null) {
-                    gpsPointListener.deliverMessage(response);
-                }
             } catch (IOException e) {
-                Logger.log("Error during read message    cause->" + e.getMessage());
+                Logger.getInstance().log("Error during read message cause->" + e.getMessage());
                 break;
             }
         }
@@ -68,9 +66,9 @@ class ConnectedThread extends Thread {
         try {
             byte[] bytes = message.getBytes();
             outputStream.write(bytes);
-            Logger.log("Message sent: [" + message + "]");
+            Logger.getInstance().log("Message sent: [" + message + "]");
         } catch (IOException e) {
-            Logger.log("Error during write message    cause->" + e.getMessage());
+            Logger.getInstance().log("Error during write message cause->" + e.getMessage());
         }
     }
 
@@ -78,10 +76,8 @@ class ConnectedThread extends Thread {
         try {
             socket.close();
         } catch (IOException e) {
+            Logger.getInstance().log("Error during cancel cause->" + e.getMessage());
         }
     }
 
-    public void setGpsPointListener(GpsProvider.GpsPointListener listener) {
-        this.gpsPointListener = listener;
-    }
 }

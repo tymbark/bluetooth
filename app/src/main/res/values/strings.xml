@@ -1,8 +1,28 @@
 <resources>
-    <string name="app_name">bluetooth-test</string>
 
+    <!-- drawer -->
+    <string name="drawer_console_output">Console output</string>
+    <string name="drawer_google_maps">Google Maps</string>
+    <string name="drawer_connection_status">Connection status</string>
+
+    <!-- start fragment -->
+    <string name="app_name">WyGraMiHoFF PI-BOT</string>
+    <string name="start">Start</string>
+
+
+    <!-- console fragment -->
     <string name="hello_world">Hello world!</string>
-    <string name="action_hide_console">Hide Console</string>
-    <string name="action_show_console">Show Console</string>
-    <string name="action_clear_logs">Clear Logs</string>
+    <string name="console_clear_logs">Clear Logs</string>
+    <string name="console_custom_message">Custom Message</string>
+
+    <!-- status fragment-->
+    <string name="status_visibility">Visibility:</string>
+    <string name="status_connection">Connection:</string>
+    <string name="status_time">Time elapsed:</string>
+
+    <!-- gps -->
+    <string name="gps_start">Start GPS</string>
+    <string name="gps_stop">Stop GPS</string>
+    <string name="gps_clear">Clear location</string>
+
 </resources>

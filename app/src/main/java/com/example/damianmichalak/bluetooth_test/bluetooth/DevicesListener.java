@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 

@@ -1,4 +1,6 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.gps;
+
+import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
 
 public class GPSThread extends Thread {
 

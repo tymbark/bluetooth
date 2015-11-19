@@ -1,12 +1,14 @@
-package com.example.damianmichalak.bluetooth_test;
+package com.example.damianmichalak.bluetooth_test.activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.example.damianmichalak.bluetooth_test.R;
+import com.example.damianmichalak.bluetooth_test.activity.MainActivity;
 
 public class CustomMessageDialog {
 
