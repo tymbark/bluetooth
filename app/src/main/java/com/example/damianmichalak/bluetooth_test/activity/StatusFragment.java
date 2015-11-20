@@ -20,6 +20,7 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
     private MainActivity activity;
     private TextView visibility;
     private TextView connection;
+    private TextView status;
     private TextView time;
 
     @Nullable
@@ -32,6 +33,7 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         visibility = (TextView) view.findViewById(R.id.status_visibility);
+        status = (TextView) view.findViewById(R.id.status_status);
         connection = (TextView) view.findViewById(R.id.status_connection);
         time = (TextView) view.findViewById(R.id.status_time);
 
@@ -65,6 +67,7 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
             @Override
             public void run() {
                 visibility.setText("Invisible");
+                status.setText("PI not found");
             }
         });
     }
@@ -75,6 +78,7 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
             @Override
             public void run() {
                 connection.setText("Connected");
+                status.setText("Connected");
             }
         });
     }
@@ -100,6 +104,16 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
             @Override
             public void run() {
                 time.setText(timestamp + "");
+            }
+        });
+    }
+
+    @Override
+    public void searchStarted() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                status.setText("Searching for PI");
             }
         });
     }

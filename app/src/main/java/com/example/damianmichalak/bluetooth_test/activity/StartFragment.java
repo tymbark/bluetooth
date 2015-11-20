@@ -43,6 +43,7 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
                 progressView.setVisibility(View.VISIBLE);
                 status.setText("Searching for PI...");
                 activity.getManager().searchForPi();
+                activity.enableDrawer();
             }
         });
     }
@@ -111,6 +112,11 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
 
     @Override
     public void time(int timestamp) {
+
+    }
+
+    @Override
+    public void searchStarted() {
 
     }
 }

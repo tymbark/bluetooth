@@ -141,4 +141,9 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
     public void time(int timestamp) {
 
     }
+
+    @Override
+    public void searchStarted() {
+
+    }
 }

@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.example.damianmichalak.bluetooth_test.R;
@@ -20,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
     private ConnectionManager manager = new ConnectionManager();
     private DrawerLayout drawer;
+    private ActionBarDrawerToggle drawerToggle;
+    private View console;
+    private View connection;
+    private View googleMaps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,32 +35,84 @@ public class MainActivity extends AppCompatActivity {
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         showFragment(StartFragment.newInstance());
+        setupViews();
+        setupBluetooth();
 
-        findViewById(R.id.drawer_console).setOnClickListener(new View.OnClickListener() {
+        disableDrawer();
+    }
+
+    private void setupViews() {
+        console = findViewById(R.id.drawer_console);
+        connection = findViewById(R.id.drawer_connection);
+        googleMaps = findViewById(R.id.drawer_google);
+
+        console.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
                 showFragment(ConsoleFragment.newInstance());
+                console.setBackgroundResource(R.color.default_selector_color);
+                connection.setBackgroundResource(android.R.color.transparent);
+                googleMaps.setBackgroundResource(android.R.color.transparent);
             }
         });
 
-        findViewById(R.id.drawer_connection).setOnClickListener(new View.OnClickListener() {
+        connection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
                 showFragment(StatusFragment.newInstance());
+                console.setBackgroundResource(android.R.color.transparent);
+                connection.setBackgroundResource(R.color.default_selector_color);
+                googleMaps.setBackgroundResource(android.R.color.transparent);
             }
         });
 
-        findViewById(R.id.drawer_google).setOnClickListener(new View.OnClickListener() {
+        googleMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
                 showFragment(GPSFragment.newInstance());
+                console.setBackgroundResource(android.R.color.transparent);
+                connection.setBackgroundResource(android.R.color.transparent);
+                googleMaps.setBackgroundResource(R.color.default_selector_color);
             }
         });
 
-        setupBluetooth();
+
+        drawerToggle = new ActionBarDrawerToggle(this, drawer, R.string.gps_stop, R.string.gps_start) {
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
+
+        drawer.setDrawerListener(drawerToggle);
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     public void showFragment(Fragment fragment) {
@@ -91,4 +150,28 @@ public class MainActivity extends AppCompatActivity {
         manager.write(messageToSend);
     }
 
+    public void enableDrawer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                console.setEnabled(true);
+                connection.setEnabled(true);
+                googleMaps.setEnabled(true);
+//                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+            }
+        });
+    }
+
+    public void disableDrawer() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                console.setEnabled(false);
+                connection.setEnabled(false);
+                googleMaps.setEnabled(false);
+//                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+        });
+    }
 }

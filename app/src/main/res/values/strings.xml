@@ -16,7 +16,9 @@
     <string name="console_custom_message">Custom Message</string>
 
     <!-- status fragment-->
+    <string name="status_status">Status:</string>
     <string name="status_visibility">Visibility:</string>
+    <string name="status_visibility_default">Unknown</string>
     <string name="status_connection">Connection:</string>
     <string name="status_time">Time elapsed:</string>
 

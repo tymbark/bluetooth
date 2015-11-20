@@ -17,6 +17,7 @@ import java.util.List;
 public class ConnectionManager implements DevicesListener, ConnectThread.ConnectionStatus, ConnectedThread.MessageReceiver {
 
     private class PiStatus {
+        public boolean searching = false;
         public boolean visible = false;
         public boolean connected = false;
         public int timestamp = 0;
@@ -35,6 +36,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         void pointReceived(List<LatLng> route);
 
         void time(int timestamp);
+
+        void searchStarted();
     }
 
     private final BluetoothAdapter bluetoothAdapter;
@@ -54,7 +57,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         public void run() {
             if (piStatus.connected) {
                 timeBroadcast();
-                piStatus.timestamp ++;
+                piStatus.timestamp++;
                 handler.postDelayed(timerRunnable, 1000);
             }
         }
@@ -84,11 +87,18 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
             listener.piDisconnected();
         }
 
-        if (piStatus.visible) {
-            listener.piVisible();
-        } else {
+        if (!piStatus.visible) {
             listener.piInvisible();
         }
+
+        if (piStatus.searching) {
+            listener.searchStarted();
+        }
+
+        if (piStatus.visible) {
+            listener.piVisible();
+        }
+
         listener.time(piStatus.timestamp);
     }
 
@@ -102,8 +112,9 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     public void searchForPi() {
-        searchingThread = new SearchingThread(bluetoothAdapter);
+        searchingThread = new SearchingThread(bluetoothAdapter, this);
         searchingThread.start();
+        piStatus.searching = true;
     }
 
     public void toggleGPS() {
@@ -141,6 +152,11 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
             piVisibleBroadcast();
             searchingThread.setRaspberryFound(true);
         }
+    }
+
+    public void piInvisible() {
+        piInvisibleBroadcast();
+        piStatus.searching = false;
     }
 
     @Override

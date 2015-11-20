@@ -7,10 +7,12 @@ import com.example.damianmichalak.bluetooth_test.activity.Logger;
 public class SearchingThread extends Thread {
 
     private final BluetoothAdapter adapter;
+    private final ConnectionManager manager;
     private boolean raspberryFound = false;
 
-    public SearchingThread(BluetoothAdapter adapter) {
+    public SearchingThread(BluetoothAdapter adapter, ConnectionManager manager) {
         this.adapter = adapter;
+        this.manager = manager;
     }
 
     @Override
@@ -29,6 +31,7 @@ public class SearchingThread extends Thread {
 
             i++;
         }
+        manager.piInvisible();
     }
 
     public void setRaspberryFound(boolean raspberryFound) {
