@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-import com.example.damianmichalak.bluetooth_test.activity.Logger;
+import com.example.damianmichalak.bluetooth_test.view.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;

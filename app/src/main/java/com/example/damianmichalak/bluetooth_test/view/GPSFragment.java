@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test.activity;
+package com.example.damianmichalak.bluetooth_test.view;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

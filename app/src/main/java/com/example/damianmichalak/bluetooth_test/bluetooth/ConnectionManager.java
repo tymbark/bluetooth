@@ -6,7 +6,8 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.ParcelUuid;
 
-import com.example.damianmichalak.bluetooth_test.activity.Logger;
+import com.example.damianmichalak.bluetooth_test.view.CarControlFragment;
+import com.example.damianmichalak.bluetooth_test.view.Logger;
 import com.example.damianmichalak.bluetooth_test.gps.GPSThread;
 import com.example.damianmichalak.bluetooth_test.gps.MessageParser;
 import com.google.android.gms.maps.model.LatLng;
@@ -223,6 +224,11 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     public void clearRoute() {
         route.clear();
+    }
+
+    public void sendCarDirections(CarControlFragment.CarDirection tempCar) {
+        final String message = "pwm " + tempCar.speed + " " +tempCar.dir.toString();
+        write(message);
     }
 
 }

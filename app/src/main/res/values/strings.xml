@@ -4,6 +4,7 @@
     <string name="drawer_console_output">Console output</string>
     <string name="drawer_google_maps">Google Maps</string>
     <string name="drawer_connection_status">Connection status</string>
+    <string name="drawer_car_control">Car Control</string>
 
     <!-- start fragment -->
     <string name="app_name">WyGraMiHoFF PI-BOT</string>
@@ -26,5 +27,9 @@
     <string name="gps_start">Start GPS</string>
     <string name="gps_stop">Stop GPS</string>
     <string name="gps_clear">Clear location</string>
+
+    <!-- car control fragment -->
+    <string name="car_control_speed">Speed:</string>
+    <string name="car_control_direction">Direction:</string>
 
 </resources>

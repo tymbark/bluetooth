@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test.activity;
+package com.example.damianmichalak.bluetooth_test.view;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private View console;
     private View connection;
     private View googleMaps;
+    private View carControl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         console = findViewById(R.id.drawer_console);
         connection = findViewById(R.id.drawer_connection);
         googleMaps = findViewById(R.id.drawer_google);
+        carControl = findViewById(R.id.drawer_car_control);
 
         console.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 console.setBackgroundResource(R.color.default_selector_color);
                 connection.setBackgroundResource(android.R.color.transparent);
                 googleMaps.setBackgroundResource(android.R.color.transparent);
+                carControl.setBackgroundResource(android.R.color.transparent);
             }
         });
 
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 console.setBackgroundResource(android.R.color.transparent);
                 connection.setBackgroundResource(R.color.default_selector_color);
                 googleMaps.setBackgroundResource(android.R.color.transparent);
+                carControl.setBackgroundResource(android.R.color.transparent);
             }
         });
 
@@ -76,9 +80,21 @@ public class MainActivity extends AppCompatActivity {
                 console.setBackgroundResource(android.R.color.transparent);
                 connection.setBackgroundResource(android.R.color.transparent);
                 googleMaps.setBackgroundResource(R.color.default_selector_color);
+                carControl.setBackgroundResource(android.R.color.transparent);
             }
         });
 
+        carControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.closeDrawers();
+                showFragment(CarControlFragment.newInstance());
+                console.setBackgroundResource(android.R.color.transparent);
+                connection.setBackgroundResource(android.R.color.transparent);
+                googleMaps.setBackgroundResource(android.R.color.transparent);
+                carControl.setBackgroundResource(R.color.default_selector_color);
+            }
+        });
 
         drawerToggle = new ActionBarDrawerToggle(this, drawer, R.string.gps_stop, R.string.gps_start) {
             public void onDrawerClosed(View view) {

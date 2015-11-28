@@ -2,7 +2,7 @@ package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 
-import com.example.damianmichalak.bluetooth_test.activity.Logger;
+import com.example.damianmichalak.bluetooth_test.view.Logger;
 
 public class SearchingThread extends Thread {
 

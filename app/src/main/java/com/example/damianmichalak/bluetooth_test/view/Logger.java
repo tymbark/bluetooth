@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test.activity;
+package com.example.damianmichalak.bluetooth_test.view;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

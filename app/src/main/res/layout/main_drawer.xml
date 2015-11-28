@@ -41,6 +41,13 @@
                 android:background="@drawable/default_primary_selector"
                 android:text="@string/drawer_google_maps"/>
 
+            <TextView
+                android:id="@+id/drawer_car_control"
+                style="@style/TextViewStyle"
+                android:layout_width="match_parent"
+                android:background="@drawable/default_primary_selector"
+                android:text="@string/drawer_car_control"/>
+
         </LinearLayout>
 
     </ScrollView>

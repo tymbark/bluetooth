@@ -6,7 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.example.damianmichalak.bluetooth_test.activity.Logger;
+import com.example.damianmichalak.bluetooth_test.view.Logger;
 
 public class BluetoothReceiver extends BroadcastReceiver {
 

@@ -1,4 +1,4 @@
-package com.example.damianmichalak.bluetooth_test.activity;
+package com.example.damianmichalak.bluetooth_test.view;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.example.damianmichalak.bluetooth_test.R;
-import com.example.damianmichalak.bluetooth_test.activity.MainActivity;
 
 public class CustomMessageDialog {
 
