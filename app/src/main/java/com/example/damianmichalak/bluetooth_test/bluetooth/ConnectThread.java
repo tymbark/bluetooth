@@ -40,10 +40,14 @@ class ConnectThread extends Thread {
             Logger.getInstance().log(e.getMessage());
         }
 
-        socket = wrapper.getUnderlyingSocket();
-        statusListener.connectionSuccess(socket);
+        if (wrapper == null) {
+            Logger.getInstance().log("fail!");
+        } else {
+            socket = wrapper.getUnderlyingSocket();
+            statusListener.connectionSuccess(socket);
 
-        Logger.getInstance().log("success!");
+            Logger.getInstance().log("success!");
+        }
     }
 
     public void cancel() {

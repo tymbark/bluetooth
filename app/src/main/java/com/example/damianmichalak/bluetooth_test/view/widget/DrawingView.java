@@ -12,6 +12,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DrawingView extends View {
 
     private Path mPath;
@@ -20,6 +23,8 @@ public class DrawingView extends View {
     private PointF center;
     private float firstX;
     private float firstY;
+    private List<PointF> scheduledPoints = new ArrayList<>();
+    private boolean ready = false;
 
     public DrawingView(Context context) {
         super(context);
@@ -55,9 +60,17 @@ public class DrawingView extends View {
         center = new PointF(w / 2, h / 2);
 
         mPath.moveTo(center.x, center.y);
+        addScheduledPoints();
 //        addLines();
 
         Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        ready = true;
+    }
+
+    private void addScheduledPoints() {
+        for (PointF point : scheduledPoints) {
+            append(point);
+        }
     }
 
     private void addLines() {
@@ -136,7 +149,12 @@ public class DrawingView extends View {
     }
 
     public void addPoint(PointF pointF) {
-        append(pointF);
+        if (ready) {
+            append(pointF);
+        }
     }
 
+    public void schedulePoints(List<PointF> previousPoints) {
+        scheduledPoints = previousPoints;
+    }
 }

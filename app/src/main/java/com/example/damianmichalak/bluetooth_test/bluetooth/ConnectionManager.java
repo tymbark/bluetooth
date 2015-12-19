@@ -54,7 +54,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     private GPSThread gpsThread;
     private PiStatus piStatus = new PiStatus();
 
-    private List<LatLng> route = new ArrayList<>();
+    private List<LatLng> routeGPS = new ArrayList<>();
+    private List<PointF> route = new ArrayList<>();
 
     final Handler handler = new Handler();
     final Runnable timerRunnable = new Runnable() {
@@ -181,19 +182,21 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         final Object response = messageParser.parse(msg);
 
         if (response instanceof LatLng) {
-            route.add((LatLng) response);
+            routeGPS.add((LatLng) response);
             GPSpointReceivedBroadcast();
         }
 
         if (response instanceof PointF) {
-            pointReceivedBroadcast((PointF) response);
+            final PointF pointF = (PointF) response;
+            route.add(pointF);
+            pointReceivedBroadcast(pointF);
         }
 
     }
 
     private void GPSpointReceivedBroadcast() {
         for (int i = 0; i < connectionListeners.size(); i++) {
-            connectionListeners.get(i).GPSpointReceived(route);
+            connectionListeners.get(i).GPSpointReceived(routeGPS);
         }
     }
 
@@ -241,12 +244,16 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     public void clearRoute() {
-        route.clear();
+        routeGPS.clear();
     }
 
     public void sendCarDirections(CarControlFragment.CarDirection tempCar) {
         final String message = "pwm " + tempCar.speed + " " + tempCar.dir.toString();
         write(message);
+    }
+
+    public List<PointF> getPreviousPoints() {
+        return route;
     }
 
 }

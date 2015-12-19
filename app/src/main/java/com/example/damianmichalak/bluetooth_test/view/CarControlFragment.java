@@ -115,6 +115,7 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
         joystick.setOnJostickMovedListener(this);
 
         activity = (MainActivity) getActivity();
+        drawingView.schedulePoints(activity.getManager().getPreviousPoints());
         activity.getManager().addConnectionListener(this);
     }
 
