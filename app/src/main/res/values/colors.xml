@@ -4,5 +4,7 @@
     <color name="default_selector_color">#aaaaaa</color>
     <color name="subtext_color">#777777</color>
 
+    <!-- Car Control -->
+    <color name="car_control_path">#dddddd</color>
 
 </resources>

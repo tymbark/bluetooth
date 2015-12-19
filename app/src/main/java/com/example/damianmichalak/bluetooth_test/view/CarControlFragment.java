@@ -1,5 +1,6 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,10 +10,62 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.damianmichalak.bluetooth_test.R;
+import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
+import com.example.damianmichalak.bluetooth_test.view.widget.DrawingView;
 import com.example.damianmichalak.bluetooth_test.view.widget.JoystickMovedListener;
 import com.example.damianmichalak.bluetooth_test.view.widget.JoystickView;
+import com.google.android.gms.maps.model.LatLng;
 
-public class CarControlFragment extends Fragment implements JoystickMovedListener {
+import java.util.List;
+
+public class CarControlFragment extends Fragment implements JoystickMovedListener, ConnectionManager.ConnectionListener  {
+
+    @Override
+    public void piVisible() {
+
+    }
+
+    @Override
+    public void piInvisible() {
+
+    }
+
+    @Override
+    public void piConnected() {
+
+    }
+
+    @Override
+    public void piDisconnected() {
+
+    }
+
+    @Override
+    public void GPSpointReceived(List<LatLng> route) {
+
+    }
+
+    @Override
+    public void pointReceived(final PointF pointF) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (drawingView != null){
+                    drawingView.addPoint(pointF);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void time(int timestamp) {
+
+    }
+
+    @Override
+    public void searchStarted() {
+
+    }
 
     public enum Direction {
         LEFT, RIGHT, STRAIGHT
@@ -38,6 +91,7 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
     private TextView directionValue;
     private JoystickView joystick;
     private MainActivity activity;
+    private DrawingView drawingView;
 
     public static Fragment newInstance() {
         return new CarControlFragment();
@@ -56,10 +110,12 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
         speedValue = (TextView) view.findViewById(R.id.car_control_speed_value);
         directionValue = (TextView) view.findViewById(R.id.car_control_direction_value);
         joystick = (JoystickView) view.findViewById(R.id.car_control_joystick);
+        drawingView = (DrawingView) view.findViewById(R.id.car_control_drawing_view);
 
         joystick.setOnJostickMovedListener(this);
 
         activity = (MainActivity) getActivity();
+        activity.getManager().addConnectionListener(this);
     }
 
     @Override

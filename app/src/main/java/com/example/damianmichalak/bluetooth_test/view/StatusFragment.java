@@ -1,5 +1,6 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -94,7 +95,12 @@ public class StatusFragment extends Fragment implements ConnectionManager.Connec
     }
 
     @Override
-    public void pointReceived(List<LatLng> points) {
+    public void GPSpointReceived(List<LatLng> points) {
+
+    }
+
+    @Override
+    public void pointReceived(PointF pointF) {
 
     }
 

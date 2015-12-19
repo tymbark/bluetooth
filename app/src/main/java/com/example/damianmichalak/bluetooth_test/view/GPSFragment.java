@@ -1,6 +1,7 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -119,7 +120,7 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
     }
 
     @Override
-    public void pointReceived(final List<LatLng> route) {
+    public void GPSpointReceived(final List<LatLng> route) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -141,6 +142,11 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
                 }
             }
         });
+    }
+
+    @Override
+    public void pointReceived(PointF pointF) {
+
     }
 
     @Override

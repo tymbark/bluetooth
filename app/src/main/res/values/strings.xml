@@ -31,5 +31,7 @@
     <!-- car control fragment -->
     <string name="car_control_speed">Speed:</string>
     <string name="car_control_direction">Direction:</string>
+    <string name="car_control_start">Start</string>
+    <string name="car_control_pause">Pause</string>
 
 </resources>

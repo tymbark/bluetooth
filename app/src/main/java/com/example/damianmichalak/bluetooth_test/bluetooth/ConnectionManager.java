@@ -3,13 +3,14 @@ package com.example.damianmichalak.bluetooth_test.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.ParcelUuid;
 
-import com.example.damianmichalak.bluetooth_test.view.CarControlFragment;
-import com.example.damianmichalak.bluetooth_test.view.Logger;
 import com.example.damianmichalak.bluetooth_test.gps.GPSThread;
 import com.example.damianmichalak.bluetooth_test.gps.MessageParser;
+import com.example.damianmichalak.bluetooth_test.view.CarControlFragment;
+import com.example.damianmichalak.bluetooth_test.view.Logger;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -34,7 +35,9 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
         void piDisconnected();
 
-        void pointReceived(List<LatLng> route);
+        void GPSpointReceived(List<LatLng> route);
+
+        void pointReceived(PointF pointF);
 
         void time(int timestamp);
 
@@ -175,13 +178,28 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     @Override
     public void messageReceived(String msg) {
         Logger.getInstance().log("Message received: [" + msg + "]");
-        route.add(messageParser.parse(msg));
-        pointReceivedBroadcast();
+        final Object response = messageParser.parse(msg);
+
+        if (response instanceof LatLng) {
+            route.add((LatLng) response);
+            GPSpointReceivedBroadcast();
+        }
+
+        if (response instanceof PointF) {
+            pointReceivedBroadcast((PointF) response);
+        }
+
     }
 
-    private void pointReceivedBroadcast() {
+    private void GPSpointReceivedBroadcast() {
         for (int i = 0; i < connectionListeners.size(); i++) {
-            connectionListeners.get(i).pointReceived(route);
+            connectionListeners.get(i).GPSpointReceived(route);
+        }
+    }
+
+    private void pointReceivedBroadcast(PointF pointF) {
+        for (int i = 0; i < connectionListeners.size(); i++) {
+            connectionListeners.get(i).pointReceived(pointF);
         }
     }
 
@@ -227,7 +245,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     public void sendCarDirections(CarControlFragment.CarDirection tempCar) {
-        final String message = "pwm " + tempCar.speed + " " +tempCar.dir.toString();
+        final String message = "pwm " + tempCar.speed + " " + tempCar.dir.toString();
         write(message);
     }
 
