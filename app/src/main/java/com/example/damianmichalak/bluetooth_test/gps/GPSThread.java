@@ -20,7 +20,7 @@ public class GPSThread extends Thread {
     public void run() {
         started = true;
         while (true) {
-            if (!run) continue;
+            if (!run) break;
             connectionManager.write("gps");
             try {
                 Thread.sleep(3000);

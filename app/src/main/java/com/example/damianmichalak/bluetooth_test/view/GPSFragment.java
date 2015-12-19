@@ -1,5 +1,6 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
@@ -23,10 +25,12 @@ import java.util.List;
 public class GPSFragment extends Fragment implements OnMapReadyCallback, ConnectionManager.ConnectionListener {
 
     private MainActivity activity;
-    private PolylineOptions polylineOptions;
     private GoogleMap mMap;
     private boolean zoomInited = false;
+    private Polyline currentPolyline;
 
+    private int[] colorsList = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
+    private int startGpsClickCount = 0;
     private boolean startedGPS = false;
     private TextView startStop;
     private SupportMapFragment mapFragment;
@@ -68,6 +72,8 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
                 activity.getManager().toggleGPS();
                 startedGPS = !startedGPS;
                 if (startedGPS) {
+                    currentPolyline = mMap.addPolyline(new PolylineOptions().color(colorsList[startGpsClickCount%colorsList.length]));
+                    startGpsClickCount++;
                     startStop.setText("Stop GPS");
                 } else {
                     startStop.setText("Start GPS");
@@ -77,7 +83,6 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
 
         activity = (MainActivity) getActivity();
         activity.getManager().addConnectionListener(this);
-        polylineOptions = new PolylineOptions();
         mapFragment.getMapAsync(this);
     }
 
@@ -90,7 +95,7 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        map.addPolyline(polylineOptions);
+        currentPolyline = mMap.addPolyline(new PolylineOptions());
     }
 
     @Override
@@ -122,11 +127,12 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(route.get(0), 12.0f));
                 }
 
-                polylineOptions.addAll(route);
+                List<LatLng> points = currentPolyline.getPoints();
+                points.addAll(route);
+                currentPolyline.setPoints(points);
 
 
                 if (mMap != null) {
-                    mMap.addPolyline(polylineOptions);
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(route.get(route.size() - 1)));
                     if (!zoomInited) {
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
