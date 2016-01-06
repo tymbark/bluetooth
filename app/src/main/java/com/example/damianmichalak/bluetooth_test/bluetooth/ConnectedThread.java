@@ -13,6 +13,7 @@ class ConnectedThread extends Thread {
     interface MessageReceiver {
 
         void messageReceived(String msg);
+        void serverCrashed();
 
     }
 
@@ -58,6 +59,7 @@ class ConnectedThread extends Thread {
                 receiver.messageReceived(response);
             } catch (IOException e) {
                 Logger.getInstance().log("Error during read message cause->" + e.getMessage());
+                receiver.serverCrashed();
                 break;
             }
         }

@@ -185,24 +185,32 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
             route.add(pointF);
             pointReceivedBroadcast(pointF);
         } else if (response instanceof MessageParser.LogOff) {
-
-            Logger.getInstance().log("Disconnection initiated.");
-            searchingThread = null;
-            connectThread.cancel();
-            connectThread = null;
-            connectedThread.cancel();
-            connectedThread = null;
-
-            if (gpsThread != null) {
-                gpsThread.cancel();
-                gpsThread = null;
-            }
-
-            Logger.getInstance().log("Disconnection ended.");
-
-            piDisconnectedBroadcast();
+            disconnect();
         }
 
+    }
+
+    private void disconnect() {
+        Logger.getInstance().log("Disconnection initiated.");
+        searchingThread = null;
+        connectThread.cancel();
+        connectThread = null;
+        connectedThread.cancel();
+        connectedThread = null;
+
+        if (gpsThread != null) {
+            gpsThread.cancel();
+            gpsThread = null;
+        }
+
+        Logger.getInstance().log("Disconnection ended.");
+
+        piDisconnectedBroadcast();
+    }
+
+    @Override
+    public void serverCrashed() {
+        disconnect();
     }
 
     private void GPSpointReceivedBroadcast() {
