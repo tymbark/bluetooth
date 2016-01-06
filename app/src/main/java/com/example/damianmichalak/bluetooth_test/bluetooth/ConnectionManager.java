@@ -9,7 +9,6 @@ import android.os.ParcelUuid;
 
 import com.example.damianmichalak.bluetooth_test.gps.GPSThread;
 import com.example.damianmichalak.bluetooth_test.gps.MessageParser;
-import com.example.damianmichalak.bluetooth_test.view.CarControlFragment;
 import com.example.damianmichalak.bluetooth_test.view.Logger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 public class ConnectionManager implements DevicesListener, ConnectThread.ConnectionStatus, ConnectedThread.MessageReceiver {
 
-    private class PiStatus {
+    public static class PiStatus {
         public boolean searching = false;
         public boolean visible = false;
         public boolean connected = false;
@@ -47,10 +46,17 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     private final BluetoothAdapter bluetoothAdapter;
     private final MessageParser messageParser;
     private List<ConnectionListener> connectionListeners;
+    private SendingManager sendingManager;
     private BluetoothDevice pi;
+
+    /**
+     * Created every new connection
+     */
+
     private ConnectedThread connectedThread;
     private SearchingThread searchingThread;
     private ConnectThread connectThread;
+
     private GPSThread gpsThread;
     private PiStatus piStatus = new PiStatus();
 
@@ -86,25 +92,6 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     public void addConnectionListener(ConnectionListener listener) {
         connectionListeners.add(listener);
-        if (piStatus.connected) {
-            listener.piConnected();
-        } else {
-            listener.piDisconnected();
-        }
-
-        if (!piStatus.visible) {
-            listener.piInvisible();
-        }
-
-        if (piStatus.searching) {
-            listener.searchStarted();
-        }
-
-        if (piStatus.visible) {
-            listener.piVisible();
-        }
-
-        listener.time(piStatus.timestamp);
     }
 
     public void removeConnectionListener(ConnectionListener listener) {
@@ -127,7 +114,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
             gpsThread = new GPSThread(this);
         }
 
-        if (!gpsThread.started()) {
+        if (!gpsThread.isStarted()) {
             gpsThread.setRun(true);
             gpsThread.start();
         } else {
@@ -137,8 +124,16 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         }
     }
 
-    public void write(String messageToSend) {
-        connectedThread.write(messageToSend);
+    public SendingManager sendOptions() {
+        return sendingManager;
+    }
+
+    public boolean isGPSTurnedON() {
+        if (gpsThread == null) {
+            return false;
+        }
+
+        return gpsThread.isStarted();
     }
 
     @Override
@@ -174,6 +169,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         piConnectedBroadcast();
         connectedThread = new ConnectedThread(socket, this);
         connectedThread.start();
+        sendingManager = new SendingManager(connectedThread);
     }
 
     @Override
@@ -184,12 +180,27 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         if (response instanceof LatLng) {
             routeGPS.add((LatLng) response);
             GPSpointReceivedBroadcast();
-        }
-
-        if (response instanceof PointF) {
+        } else if (response instanceof PointF) {
             final PointF pointF = (PointF) response;
             route.add(pointF);
             pointReceivedBroadcast(pointF);
+        } else if (response instanceof MessageParser.LogOff) {
+
+            Logger.getInstance().log("Disconnection initiated.");
+            searchingThread = null;
+            connectThread.cancel();
+            connectThread = null;
+            connectedThread.cancel();
+            connectedThread = null;
+
+            if (gpsThread != null) {
+                gpsThread.cancel();
+                gpsThread = null;
+            }
+
+            Logger.getInstance().log("Disconnection ended.");
+
+            piDisconnectedBroadcast();
         }
 
     }
@@ -243,13 +254,12 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         }
     }
 
-    public void clearRoute() {
-        routeGPS.clear();
+    public PiStatus getPiStatus() {
+        return piStatus;
     }
 
-    public void sendCarDirections(CarControlFragment.CarDirection tempCar) {
-        final String message = "pwm " + tempCar.speed + " " + tempCar.dir.toString();
-        write(message);
+    public void clearRoute() {
+        routeGPS.clear();
     }
 
     public List<PointF> getPreviousPoints() {

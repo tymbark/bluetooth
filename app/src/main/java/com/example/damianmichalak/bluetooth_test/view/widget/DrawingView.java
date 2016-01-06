@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -18,32 +19,36 @@ import java.util.List;
 public class DrawingView extends View {
 
     private Path mPath;
-    Context context;
     private Paint circlePaint;
     private PointF center;
-    private float firstX;
-    private float firstY;
+    private float prevX;
+    private float prevY;
+    private float downY;
+    private float downX;
+    private float shiftY;
+    private float shiftX;
+    private float oldY;
+    private float oldX;
     private List<PointF> scheduledPoints = new ArrayList<>();
     private boolean ready = false;
 
     public DrawingView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public DrawingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
 
-    private void init(Context c) {
-        context = c;
+    private void init() {
         mPath = new Path();
         circlePaint = new Paint();
         circlePaint.setAntiAlias(true);
@@ -74,33 +79,29 @@ public class DrawingView extends View {
     }
 
     private void addLines() {
-        float x = 40;
-        append(-x, 0);
-        append(-x, x);
-        append(x, x);
-        append(x, -x);
-        append(-2 * x, -x);
-        append(-2 * x, 2 * x);
-        append(2 * x, 2 * x);
-        append(2 * x, -2 * x);
-        append(-3 * x, -2 * x);
-        append(-3 * x, 3 * x);
-        append(3 * x, 3 * x);
-        append(3 * x, -3 * x);
-        append(-4 * x, -3 * x);
-        append(-4 * x, 4 * x);
-        append(4 * x, 4 * x);
+//        float x = 40;
+//        append(-x, 0);
+//        append(-x, x);
+//        append(x, x);
+//        append(x, -x);
+//        append(-2 * x, -x);
+//        append(-2 * x, 2 * x);
+//        append(2 * x, 2 * x);
+//        append(2 * x, -2 * x);
+//        append(-3 * x, -2 * x);
+//        append(-3 * x, 3 * x);
+//        append(3 * x, 3 * x);
+//        append(3 * x, -3 * x);
+//        append(-4 * x, -3 * x);
+//        append(-4 * x, 4 * x);
+//        append(4 * x, 4 * x);
     }
 
     private void append(PointF point) {
-        mPath.lineTo(point.x + center.x, point.y + center.y);
-        invalidate();
-    }
-
-    private void append(float x, float y) {
-        x = x + center.x;
-        y = y + center.y;
-        mPath.lineTo(x, y);
+        Log.d("CHUJ", "# raw point: " + point.x + " " + point.y);
+        Log.d("CHUJ", "# centered point: " + (point.x + center.x) + " " + (point.y + center.y));
+        Log.d("CHUJ", "# shifted point: " + (point.x + center.x + shiftX) + " " + (point.y + center.y + shiftY));
+        mPath.lineTo(point.x + center.x + (shiftX), point.y + center.y + (shiftY));
         invalidate();
     }
 
@@ -110,28 +111,47 @@ public class DrawingView extends View {
         canvas.drawPath(mPath, circlePaint);
     }
 
-    private void firstFinger(float x, float y) {
-        firstY = y;
-        firstX = x;
+    private void actionDown(float x, float y) {
+        prevY = y;
+        prevX = x;
+
+        downY = y;
+        downX = x;
+
+        oldX = shiftX;
+        oldY = shiftY;
+
     }
 
     private void moveImage(float x, float y) {
-        Matrix translateMatrix = new Matrix();
-        translateMatrix.setTranslate(x - firstX, y - firstY);
+        final Matrix translateMatrix = new Matrix();
+        translateMatrix.setTranslate(x - prevX, y - prevY);
         mPath.transform(translateMatrix);
-        firstY = y;
-        firstX = x;
+        prevY = y;
+        prevX = x;
+
+        Log.d("CHUJ", "@ old X " + oldX);
+        Log.d("CHUJ", "@ old Y " + oldY);
+        Log.d("CHUJ", "@ shift X " + shiftX);
+        Log.d("CHUJ", "@ shift Y " + shiftY);
+
+        shiftX = (x - downX) + oldX;
+        shiftY = (y - downY) + oldY;
+
+        Log.d("CHUJ", "@ n shift X " + shiftX);
+        Log.d("CHUJ", "@ n shift Y " + shiftY);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!ready) return true;
+
         float x = event.getX();
         float y = event.getY();
 
-
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                firstFinger(x, y);
+                actionDown(x, y);
                 invalidate();
                 break;
 //            case MotionEvent.ACTION_POINTER_DOWN:

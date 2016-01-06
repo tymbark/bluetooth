@@ -54,7 +54,7 @@ class ConnectThread extends Thread {
         try {
             socket.close();
         } catch (IOException e) {
-            Logger.getInstance().log(e.getMessage());
+            Logger.getInstance().log("Error during closing socket: " + e.getMessage());
         }
     }
 }

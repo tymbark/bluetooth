@@ -34,6 +34,7 @@
                 android:text="@string/car_control_direction"/>
 
             <Button
+                android:id="@+id/car_control_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/car_control_start"/>

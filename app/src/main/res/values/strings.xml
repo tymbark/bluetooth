@@ -1,14 +1,22 @@
 <resources>
 
+    <string name="app_name">WyGraMiHoFF PI-BOT</string>
+
     <!-- drawer -->
+    <string name="drawer_home">Home</string>
+    <string name="drawer_connection_status">Connection status</string>
     <string name="drawer_console_output">Console output</string>
     <string name="drawer_google_maps">Google Maps</string>
-    <string name="drawer_connection_status">Connection status</string>
     <string name="drawer_car_control">Car Control</string>
 
     <!-- start fragment -->
-    <string name="app_name">WyGraMiHoFF PI-BOT</string>
-    <string name="start">Start</string>
+    <string name="start_launch">Start</string>
+    <string name="start_disconnect">Disconnect</string>
+    <string name="start_disconnecting">Disconnecting…</string>
+    <string name="start_searching">Searching for PI…</string>
+    <string name="start_connecting">Connecting to PI…</string>
+    <string name="start_connecting_success">Connected to PI!</string>
+    <string name="start_disconnected_success">Disconnected from PI!</string>
 
 
     <!-- console fragment -->

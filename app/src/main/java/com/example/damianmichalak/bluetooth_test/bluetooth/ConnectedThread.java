@@ -20,6 +20,7 @@ class ConnectedThread extends Thread {
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private MessageReceiver receiver;
+    private boolean working = true;
 
     public ConnectedThread(BluetoothSocket socket, MessageReceiver receiver) {
         this.socket = socket;
@@ -41,10 +42,12 @@ class ConnectedThread extends Thread {
     public void run() {
         Logger.getInstance().log("connected thread start reading");
 
-        while (true) {
+        while (working) {
             byte[] buffer = new byte[256];
             try {
                 Thread.sleep(100);
+                if (!working) return;
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 continue;
@@ -60,6 +63,9 @@ class ConnectedThread extends Thread {
                 break;
             }
         }
+
+        Logger.getInstance().log("Connected Thread closed.");
+
     }
 
     public void write(String message) {
@@ -74,10 +80,16 @@ class ConnectedThread extends Thread {
 
     public void cancel() {
         try {
-            socket.close();
+            inputStream.close();
         } catch (IOException e) {
-            Logger.getInstance().log("Error during cancel cause->" + e.getMessage());
+            e.printStackTrace();
         }
+        working = false;
+//        try {
+//            socket.close();
+//        } catch (IOException e) {
+            Logger.getInstance().log("Connected Thread closing...");
+//        }
     }
 
 }

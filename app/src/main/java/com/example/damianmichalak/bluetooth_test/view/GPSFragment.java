@@ -1,10 +1,8 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +21,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
-public class GPSFragment extends Fragment implements OnMapReadyCallback, ConnectionManager.ConnectionListener {
+public class GPSFragment extends BaseFragment implements OnMapReadyCallback, ConnectionManager.ConnectionListener {
 
     private MainActivity activity;
     private GoogleMap mMap;
@@ -32,7 +30,6 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
 
     private int[] colorsList = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
     private int startGpsClickCount = 0;
-    private boolean startedGPS = false;
     private TextView startStop;
     private SupportMapFragment mapFragment;
 
@@ -58,6 +55,8 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activity = (MainActivity) getActivity();
+        activity.getManager().addConnectionListener(this);
 
         view.findViewById(R.id.gps_clear).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,23 +66,28 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
         });
 
         startStop = (TextView) view.findViewById(R.id.gps_start);
+
+        if (activity.getManager().isGPSTurnedON()) {
+            startStop.setText(activity.getResources().getString(R.string.gps_stop));
+        } else {
+            startStop.setText(activity.getResources().getString(R.string.gps_start));
+        }
+
         startStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 activity.getManager().toggleGPS();
-                startedGPS = !startedGPS;
-                if (startedGPS) {
-                    currentPolyline = mMap.addPolyline(new PolylineOptions().color(colorsList[startGpsClickCount%colorsList.length]));
+                if (activity.getManager().isGPSTurnedON()) {
+                    currentPolyline = mMap.addPolyline(new PolylineOptions().color(colorsList[startGpsClickCount % colorsList.length]));
                     startGpsClickCount++;
-                    startStop.setText("Stop GPS");
+                    startStop.setText(activity.getResources().getString(R.string.gps_stop));
                 } else {
-                    startStop.setText("Start GPS");
+                    startStop.setText(activity.getResources().getString(R.string.gps_start));
                 }
             }
         });
 
-        activity = (MainActivity) getActivity();
-        activity.getManager().addConnectionListener(this);
+
         mapFragment.getMapAsync(this);
     }
 
@@ -97,26 +101,6 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
     public void onMapReady(GoogleMap map) {
         mMap = map;
         currentPolyline = mMap.addPolyline(new PolylineOptions());
-    }
-
-    @Override
-    public void piVisible() {
-
-    }
-
-    @Override
-    public void piInvisible() {
-
-    }
-
-    @Override
-    public void piConnected() {
-
-    }
-
-    @Override
-    public void piDisconnected() {
-
     }
 
     @Override
@@ -144,18 +128,4 @@ public class GPSFragment extends Fragment implements OnMapReadyCallback, Connect
         });
     }
 
-    @Override
-    public void pointReceived(PointF pointF) {
-
-    }
-
-    @Override
-    public void time(int timestamp) {
-
-    }
-
-    @Override
-    public void searchStarted() {
-
-    }
 }

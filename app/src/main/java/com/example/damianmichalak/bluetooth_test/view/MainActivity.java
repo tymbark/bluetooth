@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private ActionBarDrawerToggle drawerToggle;
     private View console;
+    private View home;
     private View connection;
     private View googleMaps;
     private View carControl;
@@ -45,18 +46,30 @@ public class MainActivity extends AppCompatActivity {
     private void setupViews() {
         console = findViewById(R.id.drawer_console);
         connection = findViewById(R.id.drawer_connection);
+        home = findViewById(R.id.drawer_home);
         googleMaps = findViewById(R.id.drawer_google);
         carControl = findViewById(R.id.drawer_car_control);
+
+        clearSelection();
+        home.setBackgroundResource(R.color.default_selector_color);
+
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.closeDrawers();
+                clearSelection();
+                home.setBackgroundResource(R.color.default_selector_color);
+                showFragment(StartFragment.newInstance());
+            }
+        });
 
         console.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
-                showFragment(ConsoleFragment.newInstance());
+                clearSelection();
                 console.setBackgroundResource(R.color.default_selector_color);
-                connection.setBackgroundResource(android.R.color.transparent);
-                googleMaps.setBackgroundResource(android.R.color.transparent);
-                carControl.setBackgroundResource(android.R.color.transparent);
+                showFragment(ConsoleFragment.newInstance());
             }
         });
 
@@ -64,11 +77,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
-                showFragment(StatusFragment.newInstance());
-                console.setBackgroundResource(android.R.color.transparent);
+                clearSelection();
                 connection.setBackgroundResource(R.color.default_selector_color);
-                googleMaps.setBackgroundResource(android.R.color.transparent);
-                carControl.setBackgroundResource(android.R.color.transparent);
+                showFragment(StatusFragment.newInstance());
             }
         });
 
@@ -76,11 +87,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
-                showFragment(GPSFragment.newInstance());
-                console.setBackgroundResource(android.R.color.transparent);
-                connection.setBackgroundResource(android.R.color.transparent);
+                clearSelection();
                 googleMaps.setBackgroundResource(R.color.default_selector_color);
-                carControl.setBackgroundResource(android.R.color.transparent);
+                showFragment(GPSFragment.newInstance());
             }
         });
 
@@ -88,11 +97,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 drawer.closeDrawers();
-                showFragment(CarControlFragment.newInstance());
-                console.setBackgroundResource(android.R.color.transparent);
-                connection.setBackgroundResource(android.R.color.transparent);
-                googleMaps.setBackgroundResource(android.R.color.transparent);
+                clearSelection();
                 carControl.setBackgroundResource(R.color.default_selector_color);
+                showFragment(CarControlFragment.newInstance());
             }
         });
 
@@ -112,6 +119,14 @@ public class MainActivity extends AppCompatActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    private void clearSelection() {
+        home.setBackgroundResource(android.R.color.transparent);
+        console.setBackgroundResource(android.R.color.transparent);
+        connection.setBackgroundResource(android.R.color.transparent);
+        googleMaps.setBackgroundResource(android.R.color.transparent);
+        carControl.setBackgroundResource(android.R.color.transparent);
     }
 
     @Override
@@ -163,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void popupResult(final String messageToSend) {
-        manager.write(messageToSend);
+        manager.sendOptions().sendRawMessage(messageToSend);
     }
 
     public void enableDrawer() {

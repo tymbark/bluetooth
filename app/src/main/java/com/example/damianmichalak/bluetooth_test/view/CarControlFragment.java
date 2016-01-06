@@ -14,36 +14,9 @@ import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
 import com.example.damianmichalak.bluetooth_test.view.widget.DrawingView;
 import com.example.damianmichalak.bluetooth_test.view.widget.JoystickMovedListener;
 import com.example.damianmichalak.bluetooth_test.view.widget.JoystickView;
-import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
 
-public class CarControlFragment extends Fragment implements JoystickMovedListener, ConnectionManager.ConnectionListener  {
-
-    @Override
-    public void piVisible() {
-
-    }
-
-    @Override
-    public void piInvisible() {
-
-    }
-
-    @Override
-    public void piConnected() {
-
-    }
-
-    @Override
-    public void piDisconnected() {
-
-    }
-
-    @Override
-    public void GPSpointReceived(List<LatLng> route) {
-
-    }
+public class CarControlFragment extends BaseFragment implements JoystickMovedListener, ConnectionManager.ConnectionListener  {
 
     @Override
     public void pointReceived(final PointF pointF) {
@@ -55,16 +28,6 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
                 }
             }
         });
-    }
-
-    @Override
-    public void time(int timestamp) {
-
-    }
-
-    @Override
-    public void searchStarted() {
-
     }
 
     public enum Direction {
@@ -115,8 +78,24 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
         joystick.setOnJostickMovedListener(this);
 
         activity = (MainActivity) getActivity();
+
+        view.findViewById(R.id.car_control_start).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.getManager().messageReceived("point " + 0.0f + " " + gety());
+
+            }
+        });
+
+
         drawingView.schedulePoints(activity.getManager().getPreviousPoints());
         activity.getManager().addConnectionListener(this);
+    }
+
+    private int y = 0;
+
+    private float gety() {
+        return ++y;
     }
 
     @Override
@@ -146,7 +125,7 @@ public class CarControlFragment extends Fragment implements JoystickMovedListene
     }
 
     private void sendCar(CarDirection tempCar) {
-        activity.getManager().sendCarDirections(tempCar);
+        activity.getManager().sendOptions().sendCarDirections(tempCar);
     }
 
     @Override

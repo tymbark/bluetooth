@@ -1,6 +1,5 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,18 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.damianmichalak.bluetooth_test.R;
 import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
-import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
-
-public class StartFragment extends Fragment implements ConnectionManager.ConnectionListener {
+public class StartFragment extends BaseFragment implements ConnectionManager.ConnectionListener {
 
     private MainActivity activity;
     private View progressView;
-    private View start;
+    private TextView startStop;
     private TextView status;
 
     @Nullable
@@ -32,19 +29,34 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (MainActivity) getActivity();
-        progressView = view.findViewById(R.id.start_progress_view);
-        start = view.findViewById(R.id.start);
         status = (TextView) view.findViewById(R.id.start_status_text);
+        progressView = view.findViewById(R.id.start_progress_view);
+        startStop = (TextView) view.findViewById(R.id.start);
         activity.getManager().addConnectionListener(this);
 
-        start.setOnClickListener(new View.OnClickListener() {
+        final ConnectionManager.PiStatus piStatus = activity.getManager().getPiStatus();
+
+        if (piStatus.connected) {
+            startStop.setText(R.string.start_disconnect);
+        } else {
+            startStop.setText(R.string.start_launch);
+        }
+
+        startStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                start.setVisibility(View.GONE);
-                progressView.setVisibility(View.VISIBLE);
-                status.setText("Searching for PI...");
-                activity.getManager().searchForPi();
-                activity.enableDrawer();
+                if (piStatus.connected) {
+                    startStop.setVisibility(View.GONE);
+                    progressView.setVisibility(View.VISIBLE);
+                    status.setText(R.string.start_disconnecting);
+                    activity.getManager().sendOptions().sendDisconnect();
+                } else {
+                    startStop.setVisibility(View.GONE);
+                    progressView.setVisibility(View.VISIBLE);
+                    status.setText(R.string.start_searching);
+                    activity.getManager().searchForPi();
+                    activity.enableDrawer();
+                }
             }
         });
     }
@@ -64,7 +76,7 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                status.setText("Connecting to PI...");
+                status.setText(R.string.start_connecting);
             }
         });
     }
@@ -75,7 +87,7 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
             @Override
             public void run() {
                 progressView.setVisibility(View.GONE);
-                start.setVisibility(View.VISIBLE);
+                startStop.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -85,7 +97,8 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                activity.showFragment(StatusFragment.newInstance());
+                startStop.setText(R.string.start_disconnect);
+                Toast.makeText(activity, R.string.start_connecting_success, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -96,33 +109,11 @@ public class StartFragment extends Fragment implements ConnectionManager.Connect
             @Override
             public void run() {
                 progressView.setVisibility(View.GONE);
-                start.setVisibility(View.VISIBLE);
+                startStop.setVisibility(View.VISIBLE);
+                startStop.setText(R.string.start_launch);
+                Toast.makeText(activity, R.string.start_disconnected_success, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    @Override
-    public void GPSpointReceived(List<LatLng> points) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
-    }
-
-    @Override
-    public void pointReceived(PointF pointF) {
-
-    }
-
-    @Override
-    public void time(int timestamp) {
-
-    }
-
-    @Override
-    public void searchStarted() {
-
-    }
 }

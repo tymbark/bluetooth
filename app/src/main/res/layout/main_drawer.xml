@@ -22,9 +22,17 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/drawer_home"
+                style="@style/TextViewStyle"
+                android:layout_width="match_parent"
+                android:background="@drawable/default_primary_selector"
+                android:text="@string/drawer_home"/>
+
+            <TextView
                 android:id="@+id/drawer_connection"
                 style="@style/TextViewStyle"
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:background="@drawable/default_primary_selector"
                 android:text="@string/drawer_connection_status"/>
 

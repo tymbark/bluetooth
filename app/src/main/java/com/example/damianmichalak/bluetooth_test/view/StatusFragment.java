@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 
-public class StatusFragment extends Fragment implements ConnectionManager.ConnectionListener {
+public class StatusFragment extends BaseFragment implements ConnectionManager.ConnectionListener {
 
     private MainActivity activity;
     private TextView visibility;
