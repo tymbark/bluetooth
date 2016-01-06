@@ -21,6 +21,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         public boolean searching = false;
         public boolean visible = false;
         public boolean connected = false;
+        public boolean counts = false;
         public int timestamp = 0;
     }
 
@@ -264,6 +265,10 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     public PiStatus getPiStatus() {
         return piStatus;
+    }
+
+    public void setCountPoints(boolean b) {
+        piStatus.counts = b;
     }
 
     public void clearRoute() {

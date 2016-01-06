@@ -52,6 +52,8 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
     private CarDirection car;
     private TextView speedValue;
     private TextView directionValue;
+    private TextView start;
+    private TextView pause;
     private JoystickView joystick;
     private MainActivity activity;
     private DrawingView drawingView;
@@ -74,16 +76,34 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
         directionValue = (TextView) view.findViewById(R.id.car_control_direction_value);
         joystick = (JoystickView) view.findViewById(R.id.car_control_joystick);
         drawingView = (DrawingView) view.findViewById(R.id.car_control_drawing_view);
+        start = (TextView) view.findViewById(R.id.car_control_start);
+        pause = (TextView) view.findViewById(R.id.car_control_pause);
 
         joystick.setOnJostickMovedListener(this);
 
         activity = (MainActivity) getActivity();
 
-        view.findViewById(R.id.car_control_start).setOnClickListener(new View.OnClickListener() {
+        start.setEnabled(!activity.getManager().getPiStatus().counts);
+        pause.setEnabled(activity.getManager().getPiStatus().counts);
+
+
+        start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.getManager().messageReceived("point " + 0.0f + " " + gety());
+                activity.getManager().sendOptions().sendStartPoints();
+                activity.getManager().setCountPoints(true);
+                start.setEnabled(!activity.getManager().getPiStatus().counts);
+                pause.setEnabled(activity.getManager().getPiStatus().counts);
+            }
+        });
 
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.getManager().sendOptions().sendStopPoints();
+                activity.getManager().setCountPoints(false);
+                start.setEnabled(!activity.getManager().getPiStatus().counts);
+                pause.setEnabled(activity.getManager().getPiStatus().counts);
             }
         });
 
@@ -92,25 +112,19 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
         activity.getManager().addConnectionListener(this);
     }
 
-    private int y = 0;
-
-    private float gety() {
-        return ++y;
-    }
-
     @Override
     public void OnMoved(int pan, int tilt) {
         final CarDirection tempCar = new CarDirection();
 
         if (pan <= -4) {
             tempCar.dir = Direction.LEFT;
-            directionValue.setText("left");
+            directionValue.setText(R.string.car_control_left);
         } else if (pan >= 4) {
             tempCar.dir = Direction.RIGHT;
-            directionValue.setText("right");
+            directionValue.setText(R.string.car_control_right);
         } else {
             tempCar.dir = Direction.STRAIGHT;
-            directionValue.setText("straight");
+            directionValue.setText(R.string.car_control_straight);
         }
 
         final int speed = (tilt / 2) * -1;
@@ -130,7 +144,7 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
 
     @Override
     public void OnReleased() {
-        directionValue.setText("straight");
+        directionValue.setText(R.string.car_control_right);
         speedValue.setText("0");
         car.speed = 0;
         car.dir = Direction.STRAIGHT;

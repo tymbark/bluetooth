@@ -31,4 +31,12 @@ public class SendingManager {
     public void sendRawMessage(String messageToSend) {
         write(messageToSend);
     }
+
+    public void sendStartPoints() {
+        write("points on");
+    }
+
+    public void sendStopPoints() {
+        write("points off");
+    }
 }

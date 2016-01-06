@@ -41,5 +41,9 @@
     <string name="car_control_direction">Direction:</string>
     <string name="car_control_start">Start</string>
     <string name="car_control_pause">Pause</string>
+    <string name="car_control_left">left</string>
+    <string name="car_control_right">right</string>
+    <string name="car_control_straight">straight</string>
+    <string name="car_control_zero">0</string>
 
 </resources>
