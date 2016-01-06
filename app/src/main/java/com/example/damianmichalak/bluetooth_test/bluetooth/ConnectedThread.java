@@ -16,14 +16,12 @@ class ConnectedThread extends Thread {
 
     }
 
-    private final BluetoothSocket socket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private MessageReceiver receiver;
     private boolean working = true;
 
     public ConnectedThread(BluetoothSocket socket, MessageReceiver receiver) {
-        this.socket = socket;
         this.receiver = receiver;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
@@ -85,11 +83,7 @@ class ConnectedThread extends Thread {
             e.printStackTrace();
         }
         working = false;
-//        try {
-//            socket.close();
-//        } catch (IOException e) {
-            Logger.getInstance().log("Connected Thread closing...");
-//        }
+        Logger.getInstance().log("Connected Thread closing...");
     }
 
 }
