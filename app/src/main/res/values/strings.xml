@@ -45,5 +45,6 @@
     <string name="car_control_right">right</string>
     <string name="car_control_straight">straight</string>
     <string name="car_control_zero">0</string>
+    <string name="car_control_error">Not connected to PI!</string>
 
 </resources>

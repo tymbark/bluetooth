@@ -8,27 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.damianmichalak.bluetooth_test.R;
 import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
 import com.example.damianmichalak.bluetooth_test.view.widget.DrawingView;
-import com.example.damianmichalak.bluetooth_test.view.widget.JoystickMovedListener;
+import com.example.damianmichalak.bluetooth_test.view.widget.JoystickListener;
 import com.example.damianmichalak.bluetooth_test.view.widget.JoystickView;
 
 
-public class CarControlFragment extends BaseFragment implements JoystickMovedListener, ConnectionManager.ConnectionListener  {
-
-    @Override
-    public void pointReceived(final PointF pointF) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (drawingView != null){
-                    drawingView.addPoint(pointF);
-                }
-            }
-        });
-    }
+public class CarControlFragment extends BaseFragment implements JoystickListener, ConnectionManager.ConnectionListener {
 
     public enum Direction {
         LEFT, RIGHT, STRAIGHT
@@ -57,6 +46,8 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
     private JoystickView joystick;
     private MainActivity activity;
     private DrawingView drawingView;
+    private boolean sendingPWM = false;
+    private boolean toastDisplayed = false;
 
     public static Fragment newInstance() {
         return new CarControlFragment();
@@ -79,7 +70,7 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
         start = (TextView) view.findViewById(R.id.car_control_start);
         pause = (TextView) view.findViewById(R.id.car_control_pause);
 
-        joystick.setOnJostickMovedListener(this);
+        joystick.setJostickListener(this);
 
         activity = (MainActivity) getActivity();
 
@@ -113,7 +104,7 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
     }
 
     @Override
-    public void OnMoved(int pan, int tilt) {
+    public void onMoved(int pan, int tilt) {
         final CarDirection tempCar = new CarDirection();
 
         if (pan <= -4) {
@@ -131,28 +122,49 @@ public class CarControlFragment extends BaseFragment implements JoystickMovedLis
         speedValue.setText("" + speed);
         tempCar.speed = speed;
 
-        if (!tempCar.equals(car)) {
+        if (!tempCar.equals(car) && sendingPWM) {
             sendCar(tempCar);
         }
 
         car = tempCar;
     }
 
-    private void sendCar(CarDirection tempCar) {
-        activity.getManager().sendOptions().sendCarDirections(tempCar);
+    @Override
+    public void onStarted() {
+        sendingPWM = true;
     }
 
     @Override
-    public void OnReleased() {
-        directionValue.setText(R.string.car_control_right);
+    public void onStopped() {
+        sendingPWM = false;
+        directionValue.setText(R.string.car_control_straight);
         speedValue.setText("0");
         car.speed = 0;
         car.dir = Direction.STRAIGHT;
         sendCar(car);
     }
 
-    @Override
-    public void OnReturnedToCenter() {
-
+    private void sendCar(CarDirection tempCar) {
+        if (activity.getManager().sendOptions() != null) {
+            activity.getManager().sendOptions().sendCarDirections(tempCar);
+        } else {
+            if (!toastDisplayed) {
+                Toast.makeText(activity, R.string.car_control_error, Toast.LENGTH_SHORT).show();
+                toastDisplayed = true;
+            }
+        }
     }
+
+    @Override
+    public void pointReceived(final PointF pointF) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (drawingView != null) {
+                    drawingView.addPoint(pointF);
+                }
+            }
+        });
+    }
+
 }
