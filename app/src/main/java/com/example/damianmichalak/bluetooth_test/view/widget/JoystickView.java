@@ -327,14 +327,12 @@ public class JoystickView extends View {
     }
 
     private void calcUserCoordinates() {
-        //First convert to cartesian coordinates
         cartX = (int) (touchX / movementRadius * movementRange);
         cartY = (int) (touchY / movementRadius * movementRange);
 
         radial = Math.sqrt((cartX * cartX) + (cartY * cartY));
         angle = Math.atan2(cartY, cartX);
 
-        //Invert Y axis if requested
         if (!yAxisInverted)
             cartY *= -1;
 

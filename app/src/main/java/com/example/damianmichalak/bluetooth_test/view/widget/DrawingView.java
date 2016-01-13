@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -98,9 +97,6 @@ public class DrawingView extends View {
     }
 
     private void append(PointF point) {
-        Log.d("CHUJ", "# raw point: " + point.x + " " + point.y);
-        Log.d("CHUJ", "# centered point: " + (point.x + center.x) + " " + (point.y + center.y));
-        Log.d("CHUJ", "# shifted point: " + (point.x + center.x + shiftX) + " " + (point.y + center.y + shiftY));
         mPath.lineTo(point.x + center.x + (shiftX), point.y + center.y + (shiftY));
         invalidate();
     }
@@ -130,16 +126,8 @@ public class DrawingView extends View {
         prevY = y;
         prevX = x;
 
-        Log.d("CHUJ", "@ old X " + oldX);
-        Log.d("CHUJ", "@ old Y " + oldY);
-        Log.d("CHUJ", "@ shift X " + shiftX);
-        Log.d("CHUJ", "@ shift Y " + shiftY);
-
         shiftX = (x - downX) + oldX;
         shiftY = (y - downY) + oldY;
-
-        Log.d("CHUJ", "@ n shift X " + shiftX);
-        Log.d("CHUJ", "@ n shift Y " + shiftY);
     }
 
     @Override
