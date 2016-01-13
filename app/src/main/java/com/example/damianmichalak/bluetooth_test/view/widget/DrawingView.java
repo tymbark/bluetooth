@@ -30,6 +30,10 @@ public class DrawingView extends View {
     private float oldX;
     private List<PointF> scheduledPoints = new ArrayList<>();
     private boolean ready = false;
+    private boolean zooming = false;
+    private float prevDistance = 0;
+    private float totalScale = 1;
+    private float currentScale;
 
     public DrawingView(Context context) {
         super(context);
@@ -65,7 +69,6 @@ public class DrawingView extends View {
 
         mPath.moveTo(center.x, center.y);
         addScheduledPoints();
-//        addLines();
 
         Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         ready = true;
@@ -77,27 +80,10 @@ public class DrawingView extends View {
         }
     }
 
-    private void addLines() {
-//        float x = 40;
-//        append(-x, 0);
-//        append(-x, x);
-//        append(x, x);
-//        append(x, -x);
-//        append(-2 * x, -x);
-//        append(-2 * x, 2 * x);
-//        append(2 * x, 2 * x);
-//        append(2 * x, -2 * x);
-//        append(-3 * x, -2 * x);
-//        append(-3 * x, 3 * x);
-//        append(3 * x, 3 * x);
-//        append(3 * x, -3 * x);
-//        append(-4 * x, -3 * x);
-//        append(-4 * x, 4 * x);
-//        append(4 * x, 4 * x);
-    }
-
     private void append(PointF point) {
-        mPath.lineTo(point.x + center.x + (shiftX), point.y + center.y + (shiftY));
+        final float x = (point.x * totalScale) + center.x + shiftX;
+        final float y = (point.y * totalScale) + center.y + shiftY;
+        mPath.lineTo(x, y);
         invalidate();
     }
 
@@ -116,7 +102,11 @@ public class DrawingView extends View {
 
         oldX = shiftX;
         oldY = shiftY;
+    }
 
+    private void secondFingerUp() {
+        currentScale = 1.0f;
+        prevDistance = 0f;
     }
 
     private void moveImage(float x, float y) {
@@ -128,6 +118,28 @@ public class DrawingView extends View {
 
         shiftX = (x - downX) + oldX;
         shiftY = (y - downY) + oldY;
+    }
+
+    private void zoomImage(float x1, float y1, float x2, float y2) {
+
+        if (prevDistance == 0) {
+            prevDistance = (float) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+        }
+
+        float newDistance = (float) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+
+        currentScale = newDistance / prevDistance;
+        shiftX = shiftX * currentScale;
+        shiftY = shiftY * currentScale;
+
+        totalScale = totalScale * currentScale;
+
+        prevDistance = newDistance;
+
+        final Matrix translateMatrix = new Matrix();
+        translateMatrix.setScale(currentScale, currentScale, center.x, center.y);
+        mPath.transform(translateMatrix);
+
     }
 
     @Override
@@ -142,14 +154,29 @@ public class DrawingView extends View {
                 actionDown(x, y);
                 invalidate();
                 break;
-//            case MotionEvent.ACTION_POINTER_DOWN:
-//                invalidate();
-//                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                zooming = true;
+                invalidate();
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                secondFingerUp();
+                invalidate();
+                break;
             case MotionEvent.ACTION_MOVE:
-                moveImage(x, y);
+                if (zooming && event.getPointerCount() == 2) {
+                    final float x1 = event.getX(0);
+                    final float y1 = event.getY(0);
+                    final float x2 = event.getX(1);
+                    final float y2 = event.getY(1);
+
+                    zoomImage(x1, y1, x2, y2);
+                } else if (!zooming) {
+                    moveImage(x, y);
+                }
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
+                zooming = false;
                 invalidate();
                 break;
         }
