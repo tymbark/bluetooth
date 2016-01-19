@@ -191,7 +191,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     }
 
-    private void disconnect() {
+    public void disconnect() {
         Logger.getInstance().log("Disconnection initiated.");
         searchingThread = null;
         connectThread.cancel();

@@ -205,4 +205,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        getManager().disconnect();
+        super.onBackPressed();
+    }
 }
