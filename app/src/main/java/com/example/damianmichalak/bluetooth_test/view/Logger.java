@@ -7,12 +7,12 @@ import java.util.List;
 
 public class Logger {
 
-    private String output;
+    private List<String> data;
     private static Logger logger = null;
     private final List<LoggerListener> listeners = new ArrayList<>();
 
     public Logger() {
-        output = "";
+        data = new ArrayList<>();
     }
 
     public static Logger getInstance() {
@@ -23,12 +23,9 @@ public class Logger {
     }
 
     public void log(String msg) {
-        if (!output.isEmpty()) {
-            output += "\n";
-        }
-        output += new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + msg;
+        data.add(new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + msg);
         for (LoggerListener listener : listeners) {
-            if (listener != null) listener.write(output);
+            if (listener != null) listener.newData(data);
         }
     }
 
@@ -39,7 +36,7 @@ public class Logger {
 
     public void addListener(LoggerListener listener) {
         listeners.add(listener);
-        listener.write(output);
+        listener.newData(data);
     }
 
     public void removeListener(LoggerListener listener) {
@@ -47,14 +44,14 @@ public class Logger {
     }
 
     public void clearLogs() {
-        output = "";
+        data.clear();
         for (LoggerListener listener : listeners) {
-            if (listener != null) listener.write(output);
+            if (listener != null) listener.newData(data);
         }
     }
 
     interface LoggerListener {
 
-        void write(String output);
+        void newData(List<String> data);
     }
 }

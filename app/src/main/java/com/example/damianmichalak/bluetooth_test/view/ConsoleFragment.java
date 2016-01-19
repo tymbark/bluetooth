@@ -7,18 +7,24 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.damianmichalak.bluetooth_test.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConsoleFragment extends Fragment implements Logger.LoggerListener {
 
     private MainActivity activity;
-    private TextView console;
     private TextView clearConsole;
     private TextView customMessage;
-    private ScrollView scroll;
+    private List<String> data = new ArrayList<>();
+    private ListView listView;
+    private ArrayAdapter<String> adapter;
 
     @Nullable
     @Override
@@ -30,11 +36,13 @@ public class ConsoleFragment extends Fragment implements Logger.LoggerListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (MainActivity) getActivity();
-        console = (TextView) view.findViewById(R.id.console_output);
         clearConsole = (TextView) view.findViewById(R.id.console_clear);
         customMessage = (TextView) view.findViewById(R.id.console_custom_message);
-        console.setMovementMethod(new ScrollingMovementMethod());
-        scroll = (ScrollView) view.findViewById(R.id.console_scroll);
+        listView = (ListView) view.findViewById(R.id.console_list_view);
+
+        adapter = new ArrayAdapter<>(activity, R.layout.console_element, R.id.console_output, data);
+        listView.setAdapter(adapter);
+
 
         clearConsole.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,16 +73,20 @@ public class ConsoleFragment extends Fragment implements Logger.LoggerListener {
     }
 
     @Override
-    public void write(final String message) {
+    public void newData(final List<String> messages) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (console == null) return;
-                if (scroll == null) return;
-                console.setText(message);
-                scroll.post(new Runnable() {
+                if (listView == null) return;
+                if (adapter == null) return;
+                data.clear();
+                data.addAll(messages);
+                adapter.notifyDataSetChanged();
+                listView.setAdapter(adapter);
+
+                listView.post(new Runnable() {
                     public void run() {
-                        scroll.smoothScrollTo(0, console.getBottom());
+                        listView.smoothScrollToPosition(data.size() - 1);
                     }
                 });
             }
