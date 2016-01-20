@@ -18,30 +18,23 @@ public class BluetoothConnector {
 
     private static final String SERVER_UUID = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
 
-    private BluetoothSocketWrapper bluetoothSocket;
+    private BluetoothSocketWrapper socket;
     private BluetoothDevice device;
     private boolean secure;
     private BluetoothAdapter adapter;
-    private List<UUID> uuidCandidates;
+    private List<UUID> uuidList;
     private int candidate;
 
-
-    /**
-     * @param device         the device
-     * @param secure         if connection should be done via a secure socket
-     * @param adapter        the Android BT adapter
-     * @param uuidCandidates a list of UUIDs. if null or empty, the Serial PP id is used
-     */
     public BluetoothConnector(BluetoothDevice device, boolean secure, BluetoothAdapter adapter,
-                              List<UUID> uuidCandidates) {
+                              List<UUID> uuidList) {
         this.device = device;
         this.secure = secure;
         this.adapter = adapter;
-        this.uuidCandidates = uuidCandidates;
+        this.uuidList = uuidList;
 
-        if (this.uuidCandidates == null || this.uuidCandidates.isEmpty()) {
-            this.uuidCandidates = new ArrayList<UUID>();
-            this.uuidCandidates.add(UUID.fromString(SERVER_UUID));
+        if (this.uuidList == null || this.uuidList.isEmpty()) {
+            this.uuidList = new ArrayList<UUID>();
+            this.uuidList.add(UUID.fromString(SERVER_UUID));
         }
     }
 
@@ -51,15 +44,15 @@ public class BluetoothConnector {
             adapter.cancelDiscovery();
 
             try {
-                bluetoothSocket.connect();
+                socket.connect();
                 success = true;
                 break;
             } catch (IOException e) {
                 //try the fallback
                 try {
-                    bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+                    socket = new FallbackBluetoothSocket(socket.getUnderlyingSocket());
                     Thread.sleep(500);
-                    bluetoothSocket.connect();
+                    socket.connect();
                     success = true;
                     break;
                 } catch (FallbackException e1) {
@@ -76,16 +69,16 @@ public class BluetoothConnector {
             throw new IOException("Could not connect to device: " + device.getAddress());
         }
 
-        return bluetoothSocket;
+        return socket;
     }
 
     private boolean selectSocket() throws IOException {
-        if (candidate >= uuidCandidates.size()) {
+        if (candidate >= uuidList.size()) {
             return false;
         }
 
         BluetoothSocket tmp;
-        UUID uuid = uuidCandidates.get(candidate++);
+        UUID uuid = uuidList.get(candidate++);
 
         Logger.getInstance().log("Attempting to connect to Protocol: " + uuid);
         if (secure) {
@@ -93,7 +86,7 @@ public class BluetoothConnector {
         } else {
             tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
         }
-        bluetoothSocket = new NativeBluetoothSocket(tmp);
+        socket = new NativeBluetoothSocket(tmp);
 
         return true;
     }

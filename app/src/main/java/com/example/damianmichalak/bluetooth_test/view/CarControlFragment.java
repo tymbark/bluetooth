@@ -123,7 +123,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         tempCar.speed = speed;
 
         if (!tempCar.equals(car) && sendingPWM) {
-            sendCar(tempCar);
+            sendCarDirections(tempCar);
         }
 
         car = tempCar;
@@ -141,10 +141,10 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         speedValue.setText("0");
         car.speed = 0;
         car.dir = Direction.STRAIGHT;
-        sendCar(car);
+        sendCarDirections(car);
     }
 
-    private void sendCar(CarDirection tempCar) {
+    private void sendCarDirections(CarDirection tempCar) {
         if (activity.getManager().sendOptions() != null) {
             activity.getManager().sendOptions().sendCarDirections(tempCar);
         } else {

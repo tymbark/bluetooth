@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.example.damianmichalak.bluetooth_test.view.Logger;
 
@@ -37,6 +38,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
                         writeLine("Bluetooth is turning on...");
                         break;
                     case BluetoothAdapter.STATE_OFF:
+                        Toast.makeText(context, "Please turn on Bluetooth", Toast.LENGTH_SHORT).show();
                         writeLine("Bluetooth is off");
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
@@ -44,19 +46,6 @@ public class BluetoothReceiver extends BroadcastReceiver {
                         break;
                 }
                 break;
-
-//            case BluetoothDevice.ACTION_ACL_CONNECTED:
-//                device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                Toast.makeText(context, "Connected to " + device.getName(),
-//                        Toast.LENGTH_SHORT).show();
-//                Log.d("BroadcastActions", "Connected to " + device.getName());
-//                break;
-//
-//            case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-//                device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                Toast.makeText(context, "Disconnected from " + device.getName(),
-//                        Toast.LENGTH_SHORT).show();
-//                break;
 
             case BluetoothDevice.ACTION_FOUND:
                 device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);

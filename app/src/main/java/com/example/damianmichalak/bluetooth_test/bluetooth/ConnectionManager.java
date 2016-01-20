@@ -39,8 +39,6 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
         void pointReceived(PointF pointF);
 
-        void time(int timestamp);
-
         void searchStarted();
     }
 
@@ -68,7 +66,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     final Runnable timerRunnable = new Runnable() {
         public void run() {
             if (piStatus.connected) {
-                timeBroadcast();
+//                timeBroadcast();
                 piStatus.timestamp++;
                 handler.postDelayed(timerRunnable, 1000);
             }
@@ -194,10 +192,16 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     public void disconnect() {
         Logger.getInstance().log("Disconnection initiated.");
         searchingThread = null;
-        connectThread.cancel();
-        connectThread = null;
-        connectedThread.cancel();
-        connectedThread = null;
+
+        if (connectedThread != null) {
+            connectThread.cancel();
+            connectThread = null;
+        }
+
+        if (connectedThread != null) {
+            connectedThread.cancel();
+            connectedThread = null;
+        }
 
         if (gpsThread != null) {
             gpsThread.cancel();
@@ -221,11 +225,10 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     private void pointReceivedBroadcast(PointF pointF) {
-        for (int i = 0; i < connectionListeners.size(); i++) {
-            connectionListeners.get(i).pointReceived(pointF);
+        for (ConnectionListener listener : connectionListeners) {
+            listener.pointReceived(pointF);
         }
     }
-
 
     private void piVisibleBroadcast() {
         connectToPi();
@@ -254,12 +257,6 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         piStatus.connected = false;
         for (int i = 0; i < connectionListeners.size(); i++) {
             connectionListeners.get(i).piDisconnected();
-        }
-    }
-
-    private void timeBroadcast() {
-        for (int i = 0; i < connectionListeners.size(); i++) {
-            connectionListeners.get(i).time(piStatus.timestamp);
         }
     }
 
