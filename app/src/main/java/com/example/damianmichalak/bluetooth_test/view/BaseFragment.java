@@ -40,11 +40,6 @@ public class BaseFragment extends Fragment implements ConnectionManager.Connecti
     }
 
     @Override
-    public void time(int timestamp) {
-
-    }
-
-    @Override
     public void searchStarted() {
 
     }

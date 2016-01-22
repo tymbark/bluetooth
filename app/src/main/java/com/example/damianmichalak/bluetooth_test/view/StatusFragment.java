@@ -104,15 +104,15 @@ public class StatusFragment extends BaseFragment implements ConnectionManager.Co
 
     }
 
-    @Override
-    public void time(final int timestamp) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                time.setText(timestamp + "");
-            }
-        });
-    }
+//    @Override
+//    public void time(final int timestamp) {
+//        activity.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                time.setText(timestamp + "");
+//            }
+//        });
+//    }
 
     @Override
     public void searchStarted() {
