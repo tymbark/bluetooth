@@ -52,7 +52,7 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
                     status.setText(R.string.start_disconnecting);
                     activity.getManager().sendOptions().sendDisconnect();
                 } else {
-                    if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                         Toast.makeText(getActivity(), R.string.start_bluetooth_error, Toast.LENGTH_SHORT).show();
                     } else {
                         startStop.setVisibility(View.GONE);
