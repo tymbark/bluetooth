@@ -112,9 +112,7 @@ public class GPSFragment extends BaseFragment implements OnMapReadyCallback, Con
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(route.get(0), 12.0f));
                 }
 
-                List<LatLng> points = currentPolyline.getPoints();
-                points.addAll(route);
-                currentPolyline.setPoints(points);
+                currentPolyline.setPoints(route);
 
 
                 if (mMap != null) {
