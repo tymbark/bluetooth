@@ -66,7 +66,6 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     final Runnable timerRunnable = new Runnable() {
         public void run() {
             if (piStatus.connected) {
-//                timeBroadcast();
                 piStatus.timestamp++;
                 handler.postDelayed(timerRunnable, 1000);
             }
@@ -124,6 +123,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     }
 
     public SendingManager sendOptions() {
+        if (sendingManager == null)
+            return new SendingManager();
         return sendingManager;
     }
 
@@ -168,7 +169,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         piConnectedBroadcast();
         connectedThread = new ConnectedThread(socket, this);
         connectedThread.start();
-        sendingManager = new SendingManager(connectedThread);
+        sendingManager = new SendingManager();
+        sendingManager.setThread(connectedThread);
     }
 
     @Override
@@ -192,6 +194,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     public void disconnect() {
         Logger.getInstance().log("Disconnection initiated.");
         searchingThread = null;
+        sendingManager = null;
 
         if (connectedThread != null) {
             connectThread.cancel();

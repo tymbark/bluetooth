@@ -43,6 +43,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
     private TextView directionValue;
     private TextView start;
     private TextView reset;
+    private TextView area;
     private TextView pause;
     private JoystickView joystick;
     private MainActivity activity;
@@ -71,6 +72,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         start = (TextView) view.findViewById(R.id.car_control_start);
         reset = (TextView) view.findViewById(R.id.car_control_reset);
         pause = (TextView) view.findViewById(R.id.car_control_pause);
+        area = (TextView) view.findViewById(R.id.car_control_area);
 
         joystick.setJostickListener(this);
 
@@ -78,6 +80,15 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
 
         start.setEnabled(!activity.getManager().getPiStatus().counts);
         pause.setEnabled(activity.getManager().getPiStatus().counts);
+        reset.setEnabled(activity.getManager().getPiStatus().counts);
+        area.setEnabled(activity.getManager().getPiStatus().counts);
+
+        area.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.getManager().sendOptions().sendCalculateArea();
+            }
+        });
 
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +106,8 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
                 activity.getManager().setCountPoints(true);
                 start.setEnabled(!activity.getManager().getPiStatus().counts);
                 pause.setEnabled(activity.getManager().getPiStatus().counts);
+                reset.setEnabled(activity.getManager().getPiStatus().counts);
+                area.setEnabled(activity.getManager().getPiStatus().counts);
             }
         });
 

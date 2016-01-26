@@ -5,14 +5,12 @@ import com.example.damianmichalak.bluetooth_test.view.CarControlFragment;
 public class SendingManager {
 
 
-    private final ConnectedThread connectedThread;
-
-    public SendingManager(ConnectedThread connectedThread) {
-        this.connectedThread = connectedThread;
-    }
+    private ConnectedThread connectedThread;
 
     private void write(String messageToSend) {
-        connectedThread.write(messageToSend);
+        if (connectedThread != null) {
+            connectedThread.write(messageToSend);
+        }
     }
 
     public void sendCarDirections(CarControlFragment.CarDirection tempCar) {
@@ -42,5 +40,13 @@ public class SendingManager {
 
     public void sendResetPoints() {
         write("points reset");
+    }
+
+    public void sendCalculateArea() {
+        write("area");
+    }
+
+    public void setThread(ConnectedThread connectedThread) {
+        this.connectedThread = connectedThread;
     }
 }
