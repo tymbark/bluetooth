@@ -1,5 +1,6 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -51,11 +52,15 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
                     status.setText(R.string.start_disconnecting);
                     activity.getManager().sendOptions().sendDisconnect();
                 } else {
-                    startStop.setVisibility(View.GONE);
-                    progressView.setVisibility(View.VISIBLE);
-                    status.setText(R.string.start_searching);
-                    activity.getManager().searchForPi();
-                    activity.enableDrawer();
+                    if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                        Toast.makeText(getActivity(), R.string.start_bluetooth_error, Toast.LENGTH_SHORT).show();
+                    } else {
+                        startStop.setVisibility(View.GONE);
+                        progressView.setVisibility(View.VISIBLE);
+                        status.setText(R.string.start_searching);
+                        activity.getManager().searchForPi();
+                        activity.enableDrawer();
+                    }
                 }
             }
         });

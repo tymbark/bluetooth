@@ -42,6 +42,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
     private TextView speedValue;
     private TextView directionValue;
     private TextView start;
+    private TextView reset;
     private TextView pause;
     private JoystickView joystick;
     private MainActivity activity;
@@ -68,6 +69,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         joystick = (JoystickView) view.findViewById(R.id.car_control_joystick);
         drawingView = (DrawingView) view.findViewById(R.id.car_control_drawing_view);
         start = (TextView) view.findViewById(R.id.car_control_start);
+        reset = (TextView) view.findViewById(R.id.car_control_reset);
         pause = (TextView) view.findViewById(R.id.car_control_pause);
 
         joystick.setJostickListener(this);
@@ -77,6 +79,14 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         start.setEnabled(!activity.getManager().getPiStatus().counts);
         pause.setEnabled(activity.getManager().getPiStatus().counts);
 
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawingView.reset();
+                activity.getManager().clearPointsRoute();
+                activity.getManager().sendOptions().sendResetPoints();
+            }
+        });
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override

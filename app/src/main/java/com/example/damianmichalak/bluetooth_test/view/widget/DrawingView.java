@@ -192,4 +192,9 @@ public class DrawingView extends View {
     public void schedulePoints(List<PointF> previousPoints) {
         scheduledPoints = previousPoints;
     }
+
+    public void reset() {
+        mPath.reset();
+        invalidate();
+    }
 }

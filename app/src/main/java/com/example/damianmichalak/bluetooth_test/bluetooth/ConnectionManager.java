@@ -119,7 +119,7 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         } else {
             gpsThread.setRun(false);
             gpsThread = null;
-            clearRoute();
+            clearGPSRoute();
         }
     }
 
@@ -268,8 +268,13 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         piStatus.counts = b;
     }
 
-    public void clearRoute() {
+    public void clearGPSRoute() {
         routeGPS.clear();
+        GPSpointReceivedBroadcast();
+    }
+
+    public void clearPointsRoute() {
+        route.clear();
     }
 
     public List<PointF> getPreviousPoints() {

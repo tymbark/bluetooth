@@ -38,6 +38,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/car_control_start"/>
 
+            <Button
+                android:id="@+id/car_control_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/car_control_reset"/>
+
         </LinearLayout>
 
         <LinearLayout

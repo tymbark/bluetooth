@@ -61,7 +61,7 @@ public class GPSFragment extends BaseFragment implements OnMapReadyCallback, Con
         view.findViewById(R.id.gps_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.getManager().clearRoute();
+                activity.getManager().clearGPSRoute();
             }
         });
 

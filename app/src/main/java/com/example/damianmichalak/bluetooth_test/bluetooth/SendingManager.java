@@ -39,4 +39,8 @@ public class SendingManager {
     public void sendStopPoints() {
         write("points off");
     }
+
+    public void sendResetPoints() {
+        write("points reset");
+    }
 }
