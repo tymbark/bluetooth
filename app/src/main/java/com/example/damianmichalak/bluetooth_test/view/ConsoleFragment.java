@@ -86,7 +86,7 @@ public class ConsoleFragment extends Fragment implements Logger.LoggerListener {
 
                 listView.post(new Runnable() {
                     public void run() {
-                        listView.smoothScrollToPosition(data.size() - 1);
+                        listView.setSelection(data.size() - 1);
                     }
                 });
             }
