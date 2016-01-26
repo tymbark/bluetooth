@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
         showFragment(StartFragment.newInstance());
         setupViews();
         setupBluetooth();
-
-        disableDrawer();
     }
 
     private void setupViews() {
@@ -52,10 +50,12 @@ public class MainActivity extends AppCompatActivity {
 
         clearSelection();
         home.setBackgroundResource(R.color.default_selector_color);
+        getSupportActionBar().setTitle(R.string.drawer_home);
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSupportActionBar().setTitle(R.string.drawer_home);
                 drawer.closeDrawers();
                 clearSelection();
                 home.setBackgroundResource(R.color.default_selector_color);
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         console.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSupportActionBar().setTitle(R.string.drawer_console_output);
                 drawer.closeDrawers();
                 clearSelection();
                 console.setBackgroundResource(R.color.default_selector_color);
@@ -73,19 +74,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        connection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawer.closeDrawers();
-                clearSelection();
-                connection.setBackgroundResource(R.color.default_selector_color);
-                showFragment(StatusFragment.newInstance());
-            }
-        });
-
         googleMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSupportActionBar().setTitle(R.string.drawer_google_maps);
                 drawer.closeDrawers();
                 clearSelection();
                 googleMaps.setBackgroundResource(R.color.default_selector_color);
@@ -96,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         carControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSupportActionBar().setTitle(R.string.drawer_car_control);
                 drawer.closeDrawers();
                 clearSelection();
                 carControl.setBackgroundResource(R.color.default_selector_color);
