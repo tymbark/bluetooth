@@ -43,4 +43,9 @@ public class BaseFragment extends Fragment implements ConnectionManager.Connecti
     public void searchStarted() {
 
     }
+
+    @Override
+    public void areaCalculated(float area) {
+
+    }
 }

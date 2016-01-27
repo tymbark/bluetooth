@@ -40,6 +40,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         void pointReceived(PointF pointF);
 
         void searchStarted();
+
+        void areaCalculated(float area);
     }
 
     private final BluetoothAdapter bluetoothAdapter;
@@ -185,6 +187,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
             final PointF pointF = (PointF) response;
             route.add(pointF);
             pointReceivedBroadcast(pointF);
+        } else if (response instanceof MessageParser.Area) {
+            areaReceivedBroadcast(((MessageParser.Area) response).area);
         } else if (response instanceof MessageParser.LogOff) {
             disconnect();
         }
@@ -224,6 +228,12 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     private void GPSpointReceivedBroadcast() {
         for (int i = 0; i < connectionListeners.size(); i++) {
             connectionListeners.get(i).GPSpointReceived(routeGPS);
+        }
+    }
+
+    private void areaReceivedBroadcast(float area) {
+        for (ConnectionListener listener : connectionListeners) {
+            listener.areaCalculated(area);
         }
     }
 

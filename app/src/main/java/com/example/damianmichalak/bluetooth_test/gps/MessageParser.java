@@ -9,6 +9,14 @@ public class MessageParser {
     public static class LogOff {
     }
 
+    public static class Area {
+        public float area;
+
+        public Area(float area) {
+            this.area = area;
+        }
+    }
+
 
     public Object parse(String msg) {
 
@@ -40,6 +48,15 @@ public class MessageParser {
                 if (strings.length != 2) return null;
                 if (strings[1].startsWith("ok")) {
                     return new LogOff();
+                } else {
+                    return null;
+                }
+
+            case "area":
+                if (strings.length != 2) return null;
+                final float area = Float.parseFloat(strings[1]);
+                if (area < 0 || area > 1000000) {
+                    return new Area(area);
                 } else {
                     return null;
                 }

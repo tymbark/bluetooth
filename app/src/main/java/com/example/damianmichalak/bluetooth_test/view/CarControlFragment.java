@@ -1,9 +1,11 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -190,4 +192,17 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         });
     }
 
+    @Override
+    public void areaCalculated(float area) {
+        AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+        alertDialog.setTitle("Area");
+        alertDialog.setMessage("Area has been calculated");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
 }
