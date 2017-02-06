@@ -1,16 +1,17 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,10 +19,13 @@ import android.view.View;
 import com.example.damianmichalak.bluetooth_test.R;
 import com.example.damianmichalak.bluetooth_test.bluetooth.BluetoothReceiver;
 import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
+import com.example.damianmichalak.bluetooth_test.bluetooth.PartialListener;
+import com.example.damianmichalak.bluetooth_test.helper.NotificationHelper;
 
 @SuppressLint("SimpleDateFormat")
 public class MainActivity extends AppCompatActivity {
 
+    private static final String NOTIFICATION = "notification";
     private BluetoothReceiver bluetoothReceiver = new BluetoothReceiver();
     private ConnectionManager manager = new ConnectionManager();
     private DrawerLayout drawer;
@@ -31,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private View connection;
     private View googleMaps;
     private View carControl;
+    private StartFragment startFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +43,31 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_drawer);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        showFragment(StartFragment.newInstance());
+        startFragment = StartFragment.newInstance();
+        showFragment(startFragment);
         setupViews();
         setupBluetooth();
+        manager.addConnectionListener(new PartialListener() {
+            @Override
+            public void alarm() {
+                sendNotification();
+            }
+        });
+    }
+
+    private void sendNotification() {
+        final Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(NOTIFICATION, true);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        NotificationHelper.sendPushNotification(MainActivity.this, "ALARM", "ALARM WAS TRIGGERED", pendingIntent);
     }
 
     private void setupViews() {
@@ -49,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
         home = findViewById(R.id.drawer_home);
         googleMaps = findViewById(R.id.drawer_google);
         carControl = findViewById(R.id.drawer_car_control);
+
+        googleMaps.setVisibility(View.GONE);
+        carControl.setVisibility(View.GONE);
 
         clearSelection();
         home.setBackgroundResource(R.color.default_selector_color);
@@ -61,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 drawer.closeDrawers();
                 clearSelection();
                 home.setBackgroundResource(R.color.default_selector_color);
-                showFragment(StartFragment.newInstance());
+                showFragment(startFragment);
             }
         });
 
@@ -101,12 +131,12 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle = new ActionBarDrawerToggle(this, drawer, R.string.gps_stop, R.string.gps_start) {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                invalidateOptionsMenu();
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
             }
 
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu();
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
             }
         };
 
@@ -122,6 +152,21 @@ public class MainActivity extends AppCompatActivity {
         connection.setBackgroundResource(android.R.color.transparent);
         googleMaps.setBackgroundResource(android.R.color.transparent);
         carControl.setBackgroundResource(android.R.color.transparent);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getBooleanExtra(NOTIFICATION, false)) {
+//            showFragment(startFragment);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (getIntent().getBooleanExtra(NOTIFICATION, false)) {
+            showFragment(startFragment);
+        }
     }
 
     @Override

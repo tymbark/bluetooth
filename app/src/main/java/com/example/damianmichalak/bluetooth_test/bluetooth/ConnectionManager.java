@@ -9,6 +9,7 @@ import android.os.ParcelUuid;
 
 import com.example.damianmichalak.bluetooth_test.gps.GPSThread;
 import com.example.damianmichalak.bluetooth_test.gps.MessageParser;
+import com.example.damianmichalak.bluetooth_test.helper.NotificationHelper;
 import com.example.damianmichalak.bluetooth_test.view.Logger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionManager implements DevicesListener, ConnectThread.ConnectionStatus, ConnectedThread.MessageReceiver {
+
+    private static final String ADDRESS = "20:16:06:20:91:15";
 
     public static class PiStatus {
         public boolean searching = false;
@@ -42,6 +45,8 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
         void searchStarted();
 
         void areaCalculated(float area);
+
+        void alarm();
     }
 
     private final BluetoothAdapter bluetoothAdapter;
@@ -140,13 +145,13 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
 
     @Override
     public void newDevice(BluetoothDevice device) {
-        Logger.getInstance().log("found: " + device.getName() + " # " + device.getAddress());
+        final int length = device.getUuids() != null ? device.getUuids().length : 0;
+        Logger.getInstance().log("found: " + device.getName() + " # UUDIS:" + length + " # " + device.getAddress());
 
-        if (device.getName() != null && device.getName().equals("raspberrypi")) {
+        if (device.getName() != null && device.getAddress().equals(ADDRESS)) {
             pi = device;
             ParcelUuid[] temp = pi.getUuids();
             if (temp != null) {
-                Logger.getInstance().log("Pi UUID's");
                 for (int i = 0; i < temp.length; i++) {
                     Logger.getInstance().log(temp[i].getUuid().toString());
                 }
@@ -178,20 +183,25 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     @Override
     public void messageReceived(String msg) {
         Logger.getInstance().log("Message received: [" + msg + "]");
-        final Object response = messageParser.parse(msg);
 
-        if (response instanceof LatLng) {
-            routeGPS.add((LatLng) response);
-            GPSpointReceivedBroadcast();
-        } else if (response instanceof PointF) {
-            final PointF pointF = (PointF) response;
-            route.add(pointF);
-            pointReceivedBroadcast(pointF);
-        } else if (response instanceof MessageParser.Area) {
-            areaReceivedBroadcast(((MessageParser.Area) response).area);
-        } else if (response instanceof MessageParser.LogOff) {
-            disconnect();
+        if (msg.equals("ALARM")) {
+            alarmBroadcast();
         }
+
+//        final Object response = messageParser.parse(msg);
+//
+//        if (response instanceof LatLng) {
+//            routeGPS.add((LatLng) response);
+//            GPSpointReceivedBroadcast();
+//        } else if (response instanceof PointF) {
+//            final PointF pointF = (PointF) response;
+//            route.add(pointF);
+//            pointReceivedBroadcast(pointF);
+//        } else if (response instanceof MessageParser.Area) {
+//            areaReceivedBroadcast(((MessageParser.Area) response).area);
+//        } else if (response instanceof MessageParser.LogOff) {
+//            disconnect();
+//        }
 
     }
 
@@ -223,6 +233,12 @@ public class ConnectionManager implements DevicesListener, ConnectThread.Connect
     @Override
     public void serverCrashed() {
         disconnect();
+    }
+
+    private void alarmBroadcast() {
+        for (ConnectionListener listener : connectionListeners) {
+            listener.alarm();
+        }
     }
 
     private void GPSpointReceivedBroadcast() {

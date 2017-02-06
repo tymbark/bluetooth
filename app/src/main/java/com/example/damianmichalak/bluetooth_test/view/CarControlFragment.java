@@ -79,6 +79,7 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
         joystick.setJostickListener(this);
 
         activity = (MainActivity) getActivity();
+        activity.getManager().addConnectionListener(this);
 
         start.setEnabled(!activity.getManager().getPiStatus().counts);
         pause.setEnabled(activity.getManager().getPiStatus().counts);
@@ -193,16 +194,35 @@ public class CarControlFragment extends BaseFragment implements JoystickListener
     }
 
     @Override
-    public void areaCalculated(float area) {
-        AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-        alertDialog.setTitle("Area");
-        alertDialog.setMessage("Area has been calculated");
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        alertDialog.show();
+    public void onDestroy() {
+        super.onDestroy();
+        activity.getManager().removeConnectionListener(this);
+    }
+
+    private boolean areaShown = false;
+
+    @Override
+    public void areaCalculated(final float area) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if (areaShown) return;
+
+                areaShown = true;
+
+                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+                alertDialog.setTitle("Area");
+                alertDialog.setMessage("Area has been calculated:" + area);
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+        });
+
     }
 }

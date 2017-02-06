@@ -13,6 +13,7 @@ class ConnectedThread extends Thread {
     interface MessageReceiver {
 
         void messageReceived(String msg);
+
         void serverCrashed();
 
     }
@@ -41,10 +42,12 @@ class ConnectedThread extends Thread {
     public void run() {
         Logger.getInstance().log("connected thread start reading");
 
+        String response = "";
         while (working) {
+
             byte[] buffer = new byte[256];
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
                 if (!working) return;
 
             } catch (InterruptedException e) {
@@ -54,11 +57,22 @@ class ConnectedThread extends Thread {
             try {
                 inputStream.read(buffer);
 
-                final String response = new String(buffer);
+                final String income = new String(buffer);
 
-                receiver.messageReceived(response);
+                if (income.startsWith(";")) {
+                    response = income;
+                } else if (!income.contains(";")) {
+                    response += income;
+                } else if (!income.startsWith(";") && income.contains(";")) {
+                    response += income.substring(0, income.indexOf(";"));
+                    receiver.messageReceived(response.replaceAll("[^a-zA-Z ]", ""));
+                }
+//                if (response.contains(";")) {
+//                    receiver.messageReceived(response);
+//                    response = "";
+//                }
             } catch (IOException e) {
-                Logger.getInstance().log("Error during read message cause->" + e.getMessage());
+                Logger.getInstance().log("Error during read message cause -> " + e.getMessage());
                 receiver.serverCrashed();
                 break;
             }

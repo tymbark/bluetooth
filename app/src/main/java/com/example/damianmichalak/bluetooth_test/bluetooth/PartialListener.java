@@ -1,14 +1,12 @@
-package com.example.damianmichalak.bluetooth_test.view;
+package com.example.damianmichalak.bluetooth_test.bluetooth;
 
 import android.graphics.PointF;
-import android.support.v4.app.Fragment;
 
-import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-public class BaseFragment extends Fragment implements ConnectionManager.ConnectionListener {
+public class PartialListener implements ConnectionManager.ConnectionListener{
     @Override
     public void piVisible() {
 

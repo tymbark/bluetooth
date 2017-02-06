@@ -55,11 +55,7 @@ public class MessageParser {
             case "area":
                 if (strings.length != 2) return null;
                 final float area = Float.parseFloat(strings[1]);
-                if (area < 0 || area > 1000000) {
                     return new Area(area);
-                } else {
-                    return null;
-                }
 
             default:
                 return null;

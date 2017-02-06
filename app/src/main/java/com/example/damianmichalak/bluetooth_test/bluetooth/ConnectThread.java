@@ -3,6 +3,7 @@ package com.example.damianmichalak.bluetooth_test.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.ParcelUuid;
 
 import com.example.damianmichalak.bluetooth_test.view.Logger;
 
@@ -12,6 +13,7 @@ class ConnectThread extends Thread {
 
     interface ConnectionStatus {
         void connectionFail();
+
         void connectionSuccess(BluetoothSocket socket);
     }
 
@@ -19,7 +21,7 @@ class ConnectThread extends Thread {
     private ConnectionStatus statusListener;
     private final BluetoothDevice pi;
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothConnector.BluetoothSocketWrapper wrapper;
+//    private BluetoothConnector.BluetoothSocketWrapper wrapper;
 
     public ConnectThread(BluetoothDevice device, BluetoothAdapter bluetoothAdapter, ConnectionStatus statusListener) {
         pi = device;
@@ -31,23 +33,23 @@ class ConnectThread extends Thread {
         Logger.getInstance().log("Connect thread run");
 
 
-        BluetoothConnector bluetoothConnector = new BluetoothConnector(pi, false, bluetoothAdapter, null);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
+        BluetoothDevice dispositivo = bluetoothAdapter.getRemoteDevice(pi.getAddress());//connects to the device's address and checks if it's available
+        final ParcelUuid[] uuids = pi.getUuids();
+
         try {
-            wrapper = bluetoothConnector.connect();
+            socket = dispositivo.createInsecureRfcommSocketToServiceRecord(uuids[0].getUuid());
+            socket.connect();
         } catch (IOException e) {
+            e.printStackTrace();
             statusListener.connectionFail();
             Logger.getInstance().log("fail!");
             Logger.getInstance().log(e.getMessage());
         }
 
-        if (wrapper == null) {
-            Logger.getInstance().log("fail!");
-        } else {
-            socket = wrapper.getUnderlyingSocket();
-            statusListener.connectionSuccess(socket);
+        statusListener.connectionSuccess(socket);
 
-            Logger.getInstance().log("success!");
-        }
+        Logger.getInstance().log("success!");
     }
 
     public void cancel() {

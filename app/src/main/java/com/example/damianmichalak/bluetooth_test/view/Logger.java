@@ -1,5 +1,7 @@
 package com.example.damianmichalak.bluetooth_test.view;
 
+import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +25,7 @@ public class Logger {
     }
 
     public void log(String msg) {
+        Log.d("LOGGER", "msg");
         data.add(new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis())) + " " + msg);
         for (LoggerListener listener : listeners) {
             if (listener != null) listener.newData(data);

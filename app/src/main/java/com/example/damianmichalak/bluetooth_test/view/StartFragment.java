@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.damianmichalak.bluetooth_test.R;
 import com.example.damianmichalak.bluetooth_test.bluetooth.ConnectionManager;
+import com.example.damianmichalak.bluetooth_test.helper.NotificationHelper;
 
 public class StartFragment extends BaseFragment implements ConnectionManager.ConnectionListener {
 
@@ -19,6 +20,7 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
     private View progressView;
     private TextView startStop;
     private TextView status;
+    private TextView alarm;
 
     @Nullable
     @Override
@@ -31,6 +33,7 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
         super.onViewCreated(view, savedInstanceState);
         activity = (MainActivity) getActivity();
         status = (TextView) view.findViewById(R.id.start_status_text);
+        alarm = (TextView) view.findViewById(R.id.alarm);
         progressView = view.findViewById(R.id.start_progress_view);
         startStop = (TextView) view.findViewById(R.id.start);
         activity.getManager().addConnectionListener(this);
@@ -39,6 +42,7 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
 
         if (piStatus.connected) {
             startStop.setText(R.string.start_disconnect);
+            alarm.setVisibility(View.VISIBLE);
         } else {
             startStop.setText(R.string.start_launch);
         }
@@ -64,9 +68,18 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
                 }
             }
         });
+
+        alarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.getManager().sendOptions().sendRawMessage("STOP");
+                NotificationHelper.clear(getActivity());
+            }
+        });
+
     }
 
-    public static Fragment newInstance() {
+    public static StartFragment newInstance() {
         return new StartFragment();
     }
 
@@ -91,8 +104,8 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressView.setVisibility(View.GONE);
-                startStop.setVisibility(View.VISIBLE);
+//                progressView.setVisibility(View.GONE);
+//                startStop.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -102,6 +115,9 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                startStop.setVisibility(View.VISIBLE);
+                alarm.setVisibility(View.VISIBLE);
+                progressView.setVisibility(View.GONE);
                 startStop.setText(R.string.start_disconnect);
                 Toast.makeText(activity, R.string.start_connecting_success, Toast.LENGTH_SHORT).show();
             }
@@ -117,6 +133,7 @@ public class StartFragment extends BaseFragment implements ConnectionManager.Con
                 startStop.setVisibility(View.VISIBLE);
                 startStop.setText(R.string.start_launch);
                 Toast.makeText(activity, R.string.start_disconnected_success, Toast.LENGTH_SHORT).show();
+                alarm.setVisibility(View.GONE);
             }
         });
     }
